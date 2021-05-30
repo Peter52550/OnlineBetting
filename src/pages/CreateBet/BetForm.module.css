@@ -1,0 +1,41 @@
+.container {
+  padding-left: 32px;
+  padding-right: 32px;
+  padding-top: 60px;
+}
+
+.input {
+  width: 100%;
+}
+
+.vertical_spacing {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 30%;
+}
+
+.reminder {
+  color: #858585;
+  font-size: 12px;
+}
+
+.payment {
+  overflow: scroll;
+}
+
+.blue {
+  color: #097ac5;
+  font-size: 20px;
+  padding-top: 2px;
+}
+
+.image {
+  border-radius: 4px;
+  height: 100%;
+}
+
+.image_mask {
+  opacity: 1;
+  font-size: 24px;
+  background: rgba(89, 82, 82, 0.8);
+}
