@@ -10,7 +10,7 @@
 
 # production
 /build
-/ethereum/build
+/ethereum/build/*
 
 # misc
 .DS_Store

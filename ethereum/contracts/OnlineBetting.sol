@@ -1,8 +1,9 @@
 pragma solidity >=0.4.21 <0.6.0;
 
-import "./PeterToken.sol";
-
 contract OnlineBetting {
+
+    //constants
+    uint constant SMALLEST_FEE = 0.001 ether;
 
     //events
     event BetAdded(uint betId, string title);  //emit when
@@ -17,17 +18,17 @@ contract OnlineBetting {
         uint upperBound;
         uint publishTime;
         uint lastBetTime;
-        mapping (string => uint) currentChoice;
     }
 
     //Bet list
     Bet[] bets;
+    mapping (uint => mapping (string => uint)) currentChoice;
 
     //Modifiers
     //Valid bet modifier
     modifier isValidId(uint _id) {
         require(_id < bets.length, "Invalid ID!!!");
-        require(now <= bets[_id].publishTime, "Bet has expired");
+        //require(now <= bets[_id].publishTime, "Bet has expired");
         _;
     }
 
@@ -46,21 +47,37 @@ contract OnlineBetting {
     }
 
     //Add money to selected choice
-    function addMoney(uint _id, string memory _choice, uint _amount) public isValidId(_id) isValidAmount(_id, _amount) {
-        require(bets[_id].owner != msg.sender, "Cannot add money to your own bets.");
+    function addMoney(uint _id, string memory _choice, uint _amount) public payable isValidId(_id) isValidAmount(_id, _amount) {
+        //require(bets[_id].owner != msg.sender, "Cannot add money to your own bets.");
+        require(msg.value == _amount*SMALLEST_FEE, "Not Enough Money");
         bets[_id].currentAmount += _amount;
-        bets[_id].currentChoice[_choice] += _amount;
+        currentChoice[_id][_choice] += _amount;
         emit MoneyAdded(_id, _choice, _amount);
     }
     
-    //Get bet from ID
-    function getBet(uint _id) public view isValidId(_id) returns(string memory, uint, uint, uint) {
+    //Get Title from ID
+    function getTitle(uint _id) public view isValidId(_id) returns(string memory) {
         Bet memory bet = bets[_id];
-        return (bet.title, bet.lowerBound, bet.currentAmount, bet.upperBound);
+        return bet.title;
+    }
+
+    function getLowerBound(uint _id) public view isValidId(_id) returns(uint) {
+        Bet memory bet = bets[_id];
+        return bet.lowerBound;
+    }
+
+    function getCurrentAmount(uint _id) public view isValidId(_id) returns(uint) {
+        Bet memory bet = bets[_id];
+        return bet.currentAmount;
+    }
+
+    function getUpperBound(uint _id) public view isValidId(_id) returns(uint) {
+        Bet memory bet = bets[_id];
+        return bet.upperBound;
     }
 
     //Get Amount from choice
     function getChoiceAmount(uint _id, string memory _choice) public view isValidId(_id) returns(uint) {
-        return bets[_id].currentChoice[_choice];
+        return currentChoice[_id][_choice];
     }
 }
