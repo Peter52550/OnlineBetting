@@ -21,11 +21,17 @@ export default function BetInfo({
   formUpperBound,
   formPublishTime,
   formLastBetTime,
+  formBetType,
+  formBetOptions,
   handleTitleNameChange,
   handleLowerBoundChange,
   handleUpperBoundChange,
   handlePublishTimeChange,
   handleLastBetTimeChange,
+  handleBetTypeChange,
+  handleBetOptionsChange,
+  addClick,
+  removeClick,
 }) {
   const history = useHistory();
   // data control
@@ -57,11 +63,17 @@ export default function BetInfo({
           formUpperBound={formUpperBound}
           formPublishTime={formPublishTime}
           formLastBetTime={formLastBetTime}
+          formBetType={formBetType}
+          formBetOptions={formBetOptions}
           handleTitleNameChange={handleTitleNameChange}
           handleLowerBoundChange={handleLowerBoundChange}
           handleUpperBoundChange={handleUpperBoundChange}
           handlePublishTimeChange={handlePublishTimeChange}
           handleLastBetTimeChange={handleLastBetTimeChange}
+          handleBetTypeChange={handleBetTypeChange}
+          handleBetOptionsChange={handleBetOptionsChange}
+          addClick={addClick}
+          removeClick={removeClick}
         />
       </div>
     </div>
