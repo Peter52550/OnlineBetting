@@ -31,6 +31,24 @@ contract('Peter', (accounts) => {
     assert.strictEqual(current_1.toNumber(), 0);
   })
 
+  it('TestAddChoice', async () => {
+    await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
+
+    await token.addChoice(0, "haha");
+    await token.addChoice(0, "isme");
+    await token.addChoice(0, "asdf")
+
+    const choiceNum = await token.getChoiceNum(0);
+    const choice0 = await token.getChoice(0, 0);
+    const choice1 = await token.getChoice(0, 1);
+    const choice2 = await token.getChoice(0, 2);
+
+    assert.strictEqual(choiceNum.toNumber(), 3);
+    assert.strictEqual(choice0, "haha");
+    assert.strictEqual(choice1, "isme");
+    assert.strictEqual(choice2, "asdf");
+  })
+
   it('TestAddMoney', async () => {
     await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
     await token.addBet("Howard", 0, 200, 123, 456, {from: accounts[0]});

@@ -6,6 +6,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import MainPage from "../pages/Main";
 import CreateBetPage from "../pages/CreateBet";
 import CheckBetPage from "../pages/Checkbet";
+import OnlineBettingContract from "../contracts/OnlineBetting.json";
 
 // import AddAccountRecord from "../pages/AddAccountRecord";
 // import AccountRecords from "../pages/AccountRecords";
