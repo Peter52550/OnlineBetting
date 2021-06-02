@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom";
 import styles from "./Card.module.css";
 // components
 
-import { Typography, Image, Space, Progress } from "antd";
+import { Typography, Image, Space, Progress, Tooltip } from "antd";
 const { Title, Text } = Typography;
 
 /**
@@ -31,15 +31,16 @@ export default function Card({
     // });
     history.push(`/${bet_id}`);
   };
+  const total = token.reduce((acc, curValue) => acc + curValue, 0);
   const haveReward =
-    typeof upperbound === "number" && typeof token === "number";
+    typeof upperbound === "number" && typeof total === "number";
 
   const distance = ` $ ${
-    Math.round(Math.max(upperbound - token, 0) * 100) / 100
+    Math.round(Math.max(upperbound - total, 0) * 100) / 100
   }`;
-  const accumulate = ` $ ${Math.round(token * 100) / 100}`;
-  const percentage = (token * 100) / (upperbound === 0 ? 1 : upperbound);
-
+  const accumulate = ` $ ${Math.round(total * 100) / 100}`;
+  const percentage = (total * 100) / (upperbound === 0 ? 1 : upperbound);
+  const max_acc = Math.max.apply(Math, token);
   return (
     <div
       className={styles.container}
@@ -87,7 +88,8 @@ export default function Card({
       <Progress
         percent={percentage}
         showInfo={false}
-        status="active"
+        success={{ percent: Number(max_acc), strokeColor: "#e29871" }}
+        // status="active"
         strokeColor="#0058A3"
         trailColor="#D2D7DC"
       />

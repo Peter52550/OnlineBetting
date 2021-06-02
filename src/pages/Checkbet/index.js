@@ -8,9 +8,10 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 export default function CheckBet(props) {
   const { handleBettingChange, id, cardUserBettings, cardOwnBettings } = props;
   const history = useHistory();
-  const [token, setToken] = useState();
+  const [token, setToken] = useState([]);
   const [mode, setMode] = useState("");
   const [betInfo, setBetInfo] = useState({});
+
   const tokenDisable = false;
   useEffect(() => {
     let bet = cardOwnBettings.find(({ bet_id }) => bet_id === Number(id));
@@ -21,11 +22,16 @@ export default function CheckBet(props) {
       setMode("自己");
     }
     setBetInfo(bet);
+    setToken(Array(bet.options.length));
   }, []);
 
-  const handleBidChange = (value) => {
+  const handleBidChange = (tokenArray) => {
     let bet = betInfo;
-    bet.token = Number(betInfo.token) + Number(value);
+    tokenArray.map((value, index) => {
+      if (value != null) {
+        bet.token[index] = Number(bet.token[index]) + Number(value);
+      }
+    });
     setBetInfo(bet);
     let bettings;
     if (mode === "自己") {
@@ -33,13 +39,15 @@ export default function CheckBet(props) {
     } else {
       bettings = cardUserBettings;
     }
-    bettings = bettings.filter(({ bet_id }) => bet_id !== Number(id));
+    bettings = bettings.filter(({ bet_id }) => Number(bet_id) !== Number(id));
     bettings.unshift(bet);
     handleBettingChange(bettings, mode);
-    setToken();
+    setToken(Array(betInfo.options.length).fill(""));
   };
-  const handleTokenChange = (e) => {
-    setToken(e.target.value);
+  const handleTokenChange = (e, i) => {
+    let newToken = [...token];
+    newToken[i] = e.target.value;
+    setToken(newToken);
   };
 
   const confirm = () => {
@@ -71,38 +79,78 @@ export default function CheckBet(props) {
       <div style={{ marginLeft: 550, fontSize: 30 }}>
         每次下注最小金額：{betInfo.lowerbound}
       </div>
-      <div style={{ marginLeft: 550, fontSize: 30 }}>
-        目前下賭金額：{betInfo.token}
-      </div>
+      {Object.keys(betInfo).length !== 0 ? (
+        <div style={{ marginLeft: 550, fontSize: 30 }}>
+          目前總下賭金額：
+          {betInfo.token.reduce((acc, curValue) => acc + curValue, 0)}
+        </div>
+      ) : (
+        ""
+      )}
       <div style={{ marginLeft: 550, fontSize: 30 }}>
         上限金額：{betInfo.upperbound}
       </div>
-      <Row className={styles.vertical_spacing}>
-        <Col span={4} style={{ fontSize: 30 }}>
-          下注金額{" "}
-        </Col>
-        <Col span={8}>
-          <Input
-            className={styles.input}
-            placeholder="請輸入下注金額"
-            size="large"
-            value={token}
-            disabled={tokenDisable}
-            onChange={handleTokenChange}
-          />
-        </Col>
-      </Row>
-      <Button
-        className={styles.bidbutton}
-        disabled={
-          token < betInfo.lowerbound ||
-          !token ||
-          Number(betInfo.token) + Number(token) > Number(betInfo.upperbound)
-        }
-        onClick={confirm}
-      >
-        Bid
-      </Button>
+
+      {Object.keys(betInfo).length !== 0
+        ? betInfo.options.map((option, index) => (
+            <Row
+              className={styles.vertical_spacing}
+              style={{ marginLeft: "20%" }}
+            >
+              <Col span={6} style={{ fontSize: 30 }}>
+                選項{`${index + 1}`}: {option}
+              </Col>
+              <Col span={6} style={{ fontSize: 30 }}>
+                總下賭金額 : {betInfo.token[index]}
+              </Col>
+              <Col span={4} style={{ fontSize: 30 }}>
+                下注金額{" "}
+              </Col>
+              <Col span={6}>
+                <Input
+                  className={styles.input}
+                  placeholder="請輸入下注金額"
+                  size="large"
+                  value={token[index]}
+                  disabled={tokenDisable}
+                  onChange={(e) => handleTokenChange(e, index)}
+                />
+              </Col>
+            </Row>
+          ))
+        : ""}
+      {Object.keys(betInfo).length !== 0 ? (
+        <Button
+          className={styles.bidbutton}
+          disabled={
+            Number(
+              token
+                .flat(0)
+                .filter((t) => t != null)
+                .reduce((acc, curValue) => Number(acc) + Number(curValue), 0)
+            ) < Number(betInfo.lowerbound) ||
+            // !Number(token[index]) ||
+            Number(
+              token
+                .flat(0)
+                .filter((t) => t != null)
+                .reduce((acc, curValue) => Number(acc) + Number(curValue), 0)
+            ) +
+              Number(
+                betInfo.token.reduce(
+                  (acc, curValue) => Number(acc) + Number(curValue),
+                  0
+                )
+              ) >
+              Number(betInfo.upperbound)
+          }
+          onClick={() => confirm()}
+        >
+          Bid
+        </Button>
+      ) : (
+        ""
+      )}
     </div>
   );
 }

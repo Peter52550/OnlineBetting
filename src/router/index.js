@@ -15,22 +15,26 @@ const cardUserBetting = [
   {
     user_id: "ahf8we7fojewo",
     bet_id: "77777",
-    title: "明天確診人數",
+    title: "明天確診人數會破600嗎",
     lowerbound: 10,
-    token: 20,
+    token: [20, 3],
     upperbound: 100,
     publishTime: "2021-05-30 00:56:30",
     lastBetTime: "2021-05-30 00:56:30",
+    betType: "trueFalse",
+    options: [true, false],
   },
   {
     user_id: "shfi69wefo0021",
     bet_id: "88888",
     title: "下一任台北4漲",
     lowerbound: 0,
-    token: 60,
+    token: [60, 20, 2],
     upperbound: 100,
     publishTime: "2021-05-30 00:56:30",
     lastBetTime: "2021-05-30 00:56:30",
+    betType: "multipleChoice",
+    options: ["雞排妹", "柯p", "冰鳥"],
   },
 ];
 export default function Router(props) {
@@ -48,6 +52,8 @@ export default function Router(props) {
     formUpperBound,
     formPublishTime,
     formLastBetTime,
+    formBetType,
+    formBetOptions,
   }) => {
     setCardOwnBettings([
       {
@@ -55,10 +61,12 @@ export default function Router(props) {
         bet_id: Number(id) + 10000,
         title: formTitleName,
         lowerbound: formLowerBound,
-        token: 0,
+        token: Array(formBetOptions.length).fill(0),
         upperbound: formUpperBound,
-        formPublishTime: formPublishTime,
-        formLastBetTime: formLastBetTime,
+        publishTime: formPublishTime,
+        lastBetTime: formLastBetTime,
+        betType: formBetType,
+        options: formBetOptions,
       },
       ...cardOwnBettings,
     ]);

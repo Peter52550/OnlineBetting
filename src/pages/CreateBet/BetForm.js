@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import clsx from "clsx";
+import { PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
 // css
 import styles from "./BetForm.module.css";
 // components
@@ -13,6 +14,7 @@ import {
   Col,
   Image,
   Space,
+  Radio,
 } from "antd";
 
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
@@ -43,15 +45,19 @@ export default function BetForm({
   formUpperBound,
   formPublishTime,
   formLastBetTime,
-  //   dateDisable = false,
-  amountDisable = false,
-  titleNameDisable = false,
-
+  formBetType,
+  formBetOptions,
   handleTitleNameChange,
   handleLowerBoundChange,
   handleUpperBoundChange,
   handlePublishTimeChange,
   handleLastBetTimeChange,
+  handleBetTypeChange,
+  handleBetOptionsChange,
+  amountDisable = false,
+  titleNameDisable = false,
+  addClick,
+  removeClick,
 }) {
   // handle form
   // TODO: Error display
@@ -138,6 +144,76 @@ export default function BetForm({
           />
         </Col>
       </Row>
+      <Row className={styles.vertical_spacing}>
+        <Col span={4} className={styles.blue}>
+          賭注類別{" "}
+        </Col>
+        <Radio.Group
+          className={styles.toggle}
+          onChange={handleBetTypeChange}
+          value={formBetType}
+        >
+          <Radio
+            value={"trueFalse"}
+            size="large"
+            onChange={(e) => handleBetTypeChange(e)}
+          >
+            是非(兩個選項)
+          </Radio>
+          <Radio
+            value={"multipleChoice"}
+            size="large"
+            onChange={(e) => handleBetTypeChange(e)}
+          >
+            多重選項
+          </Radio>
+        </Radio.Group>
+      </Row>
+      <Row className={styles.vertical_spacing}>
+        <Col span={4} className={styles.blue}>
+          賭注選項{" "}
+        </Col>
+      </Row>
+      {formBetOptions.map((option, i) => (
+        <Row className={styles.vertical_spacing} key={`option_${i}`}>
+          {i == 0 ? (
+            <PlusCircleTwoTone
+              twoToneColor="#eb2f96"
+              onClick={addClick}
+              style={{
+                fontSize: "28px",
+                marginLeft: "-49px",
+                paddingRight: 20,
+                paddingTop: 3,
+              }}
+            />
+          ) : (
+            <MinusCircleTwoTone
+              twoToneColor="#eb2f96"
+              onClick={() => removeClick(i)}
+              style={{
+                fontSize: "28px",
+                marginLeft: "-49px",
+                paddingRight: 20,
+                paddingTop: 3,
+              }}
+            />
+          )}
+          <Col span={4} className={styles.blue}>
+            選項一{" "}
+          </Col>
+          <Col span={10}>
+            <Input
+              className={styles.input}
+              placeholder="請輸入選項"
+              size="large"
+              value={option}
+              disabled={titleNameDisable}
+              onChange={(e) => handleBetOptionsChange(e, i)}
+            />
+          </Col>
+        </Row>
+      ))}
     </div>
   );
 }
