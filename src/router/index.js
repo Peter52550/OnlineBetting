@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 
+import getWeb3 from "../utils/getWeb3";
+
+import OnlineBetting from "../build/contracts/OnlineBetting.json";
 // react-router
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 // pages
 import MainPage from "../pages/Main";
 import CreateBetPage from "../pages/CreateBet";
 import CheckBetPage from "../pages/Checkbet";
-import OnlineBettingContract from "../contracts/OnlineBetting.json";
 
 // import AddAccountRecord from "../pages/AddAccountRecord";
 // import AccountRecords from "../pages/AccountRecords";
@@ -47,7 +49,10 @@ export default function Router(props) {
   const [id, setId] = useState(99999);
   const [cardOwnBettings, setCardOwnBettings] = useState([]);
   const [cardUserBettings, setCardUserBettings] = useState(cardUserBetting);
-  const createBet = ({
+  const [web3, setWeb3] = useState(null);
+  const [accounts, setAccounts] = useState(null);
+  const [contract, setContract] = useState(null);
+  const createBet = async ({
     formTitleName,
     formLowerBound,
     formUpperBound,
@@ -71,6 +76,11 @@ export default function Router(props) {
       },
       ...cardOwnBettings,
     ]);
+    await contract.methods
+      .addBet(formTitleName, formLowerBound, formUpperBound, 123, 456)
+      .send({
+        from: this.accounts[0],
+      });
     setId(Number(id) + 10000);
   };
   const handleBettingChange = (cardList, status) => {
@@ -80,6 +90,27 @@ export default function Router(props) {
       setCardUserBettings(cardList);
     }
   };
+  useEffect(async () => {
+    try {
+      const web3 = await getWeb3();
+      const accounts = await web3.eth.getAccounts();
+      const networkId = await web3.eth.net.getId();
+      const deployedNetwork = OnlineBetting.networks[networkId];
+      const instance = new web3.eth.Contract(
+        OnlineBetting.abi,
+        deployedNetwork && deployedNetwork.address
+      );
+      console.log(accounts, networkId, deployedNetwork, instance);
+      setWeb3(web3);
+      setAccounts(accounts);
+      setContract(instance);
+    } catch (error) {
+      alert(
+        `Failed to load web3, accounts, or contract. Check console for details.`
+      );
+      console.error(error);
+    }
+  }, []);
   return (
     <>
       <BrowserRouter>
