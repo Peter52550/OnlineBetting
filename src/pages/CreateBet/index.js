@@ -77,7 +77,6 @@ export default function CreateBetPage({
       formBetType &&
       formBetOptions
     ) {
-      console.log("hhh");
       setAllSet(true);
       Modal.confirm({
         title: "Confirm",

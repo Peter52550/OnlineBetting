@@ -22,7 +22,6 @@ contract OnlineBetting {
 
     //Bet list
     Bet[] bets;
-    mapping (uint => string[]) choices;
     mapping (uint => mapping (string => uint)) currentChoice;
 
     //Modifiers
@@ -41,15 +40,10 @@ contract OnlineBetting {
 
     //functions
     //Add bet to bets
-    function addBet(string memory _title, uint _lowerBound, uint _upperBound, uint _publishTime, uint _lastBetTime) public returns(uint) {
+    function addBet(string memory _title, uint _lowerBound, uint _upperBound, uint _publishTime, uint _lastBetTime) public {
         Bet memory bet = Bet(_title, msg.sender, _lowerBound, 0, _upperBound, _publishTime, _lastBetTime);
         uint betId = bets.push(bet) - 1;
         emit BetAdded(betId, _title);
-        return betId;
-    }
-
-    function addChoice(uint _id, string memory _choice) public {
-        choices[_id].push(_choice);
     }
 
     //Add money to selected choice
@@ -88,14 +82,6 @@ contract OnlineBetting {
     function getUpperBound(uint _id) public view isValidId(_id) returns(uint) {
         Bet memory bet = bets[_id];
         return bet.upperBound;
-    }
-
-    function getChoiceNum(uint _id) public view isValidId(_id) returns(uint) {
-        return choices[_id].length;
-    }
-
-    function getChoice(uint _id, uint _choice) public view isValidId(_id) returns(string memory) {
-        return choices[_id][_choice];
     }
 
     //Get Amount from choice
