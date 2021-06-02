@@ -56,6 +56,14 @@ contract OnlineBetting {
     }
     
     //Get Title from ID
+    function getOwnId() public view returns(bool[] memory) {
+        bool[] memory isOwnBets = new bool[](bets.length);
+        for(uint i = 0; i < bets.length; i++) {
+            isOwnBets[i] = (bets[i].owner == msg.sender);
+        }
+        return isOwnBets;
+    }
+
     function getTitle(uint _id) public view isValidId(_id) returns(string memory) {
         Bet memory bet = bets[_id];
         return bet.title;

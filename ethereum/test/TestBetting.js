@@ -52,4 +52,19 @@ contract('Peter', (accounts) => {
     assert.strictEqual(asdf.toNumber(), 10);
   })
 
+  it('TestReturnBets', async () => {
+    await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
+    await token.addBet("Howard", 0, 200, 123, 456, {from: accounts[1]});
+    await token.addBet("HaHa", 0, 200, 123, 456, {from: accounts[0]});
+    await token.addBet("asdf", 0, 200, 123, 456, {from: accounts[0]});
+    await token.addBet("zxcv", 0, 200, 123, 456, {from: accounts[1]});
+
+    const ids = await token.getOwnId.call();
+    const ans = [true, false, true, true, false];
+
+    var i;
+    for(i = 0; i < 5; i++) {
+      assert.strictEqual(ids[i], ans[i]);
+    }
+  })
 })
