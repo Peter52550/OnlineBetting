@@ -9,8 +9,8 @@ contract('Peter', (accounts) => {
   })
 
   it('TestAddBet', async () => {
-    await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
-    await token.addBet("Howard", 0, 200, 123, 456, {from: accounts[0]});
+    const id0 = await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
+    const id1 = await token.addBet("Howard", 0, 200, 123, 456, {from: accounts[0]});
 
     const title_0 = await token.getTitle.call(0);
     const title_1 = await token.getTitle.call(1);
@@ -20,6 +20,9 @@ contract('Peter', (accounts) => {
     const lower_1 = await token.getLowerBound.call(1);
     const current_0 = await token.getCurrentAmount.call(0);
     const current_1 = await token.getCurrentAmount.call(1);
+
+    //assert.strictEqual(id0, 0);
+    //assert.strictEqual(id1, 1)
 
     assert.strictEqual(title_0, "Peter");
     assert.strictEqual(title_1, "Howard");
