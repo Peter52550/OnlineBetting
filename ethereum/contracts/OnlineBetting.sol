@@ -7,7 +7,9 @@ contract OnlineBetting {
 
     //events
     event BetAdded(uint betId, string title);  //emit when
-    event MoneyAdded(uint betId, address adder, string choice, uint amount);
+    event MoneyAdded(uint betId, address adder, uint choice, uint amount);
+    event AnswerSet(uint betId, uint choice);
+    event MoneyGiven(address receiver, uint amount);
 
     //Bet
     struct Bet {
@@ -18,13 +20,16 @@ contract OnlineBetting {
         uint upperBound;
         uint publishTime;
         uint lastBetTime;
+        uint answer;
+        bool isAnswerSet;
     }
 
     //Bet list
     Bet[] bets;
     mapping (uint => string[]) choices;
-    mapping (uint => mapping (string => uint)) currentChoice;
-    mapping (address => mapping (uint => mapping(string => uint))) ownerChoice;
+    mapping (uint => uint[]) currentChoice;
+    mapping (uint => address[]) voters;
+    mapping (uint => mapping (address => uint[])) voterChoice;
 
     //Modifiers
     //Valid bet modifier
@@ -42,26 +47,51 @@ contract OnlineBetting {
     //functions
     //Add bet to bets
     function addBet(string memory _title, uint _lowerBound, uint _upperBound, uint _publishTime, uint _lastBetTime) public {
-        Bet memory bet = Bet(_title, msg.sender, _lowerBound, 0, _upperBound, _publishTime, _lastBetTime);
+        Bet memory bet = Bet(_title, msg.sender, _lowerBound, 0, _upperBound, _publishTime, _lastBetTime, 0, false);
         uint betId = bets.push(bet) - 1;
         emit BetAdded(betId, _title);
     }
 
     function addChoice(uint _id, string memory _choice) public {
         choices[_id].push(_choice);
+        currentChoice[_id].push(0);
     }
 
-    //Add money to selected choice
-    function addMoney(uint _id, string memory _choice, uint _amount) public payable isValidId(_id) isValidAmount(_id, _amount) {
+    function addMoney(uint _id, uint _choice, uint _amount) public payable isValidId(_id) isValidAmount(_id, _amount) {
         //require(bets[_id].owner != msg.sender, "Cannot add money to your own bets.");
         require(msg.value == _amount*SMALLEST_FEE, "Not Enough Money");
         bets[_id].currentAmount += _amount;
         currentChoice[_id][_choice] += _amount;
-        ownerChoice[msg.sender][_id][_choice] += _amount;
+        voters[_id].push(msg.sender);
+        voterChoice[_id][msg.sender][_choice] += _amount;
         emit MoneyAdded(_id, msg.sender, _choice, _amount);
     }
     
-    //Get Title from ID
+    function setAnswer(uint _id, uint _answer) public {
+        require(msg.sender == bets[_id].owner);
+        bets[_id].answer = _answer;
+        bets[_id].isAnswerSet = true;
+        emit AnswerSet(_id, _answer);
+    }
+
+    function distributeMoney(uint _id) public payable {
+        require(bets[_id].isAnswerSet, "Answer Not Set");
+        require(msg.sender == bets[_id].owner);
+        uint creatorReward = uint(bets[_id].currentAmount*5/100);
+        uint otherReward = uint(bets[_id].currentAmount*9/10);
+        uint numVoters = voters[_id].length;
+        uint answer = bets[_id].answer;
+
+        address payable receiver = msg.sender;
+        receiver.transfer(creatorReward * SMALLEST_FEE);
+        emit MoneyGiven(receiver, creatorReward);
+        for(uint i = 0; i < numVoters; i++) {
+            receiver = address(uint160(voters[_id][i]));
+            receiver.transfer(otherReward * SMALLEST_FEE * voterChoice[_id][receiver][answer] / currentChoice[_id][answer]);
+            emit MoneyGiven(receiver, otherReward * voterChoice[_id][receiver][answer] / currentChoice[_id][answer]);
+        }
+    }
+
     function getIds() public view returns(uint[] memory, bool[] memory) {
         uint count;
         uint[] memory ids;
@@ -103,19 +133,28 @@ contract OnlineBetting {
         return choices[_id][_choice];
     }
 
-    //Get Amount from choice
-    function getChoiceAmount(uint _id, string memory _choice) public view isValidId(_id) returns(uint) {
-        return currentChoice[_id][_choice];
+    function getChoicesAmount(uint _id) public view isValidId(_id) returns(uint[] memory) {
+        uint len = getChoiceNum(_id);
+        uint[] memory amounts = new uint[](len);
+        for(uint i = 0; i < len; i++) {
+            amounts[i] = currentChoice[_id][i];
+        }
+        return amounts;
     }
 
     function getAddressAmount(uint _id) public view isValidId(_id) returns(uint[] memory) {
         uint len = getChoiceNum(_id);
         uint[] memory amounts = new uint[](len);
         for(uint i = 0; i < len; i++) {
-            amounts[i] = ownerChoice[msg.sender][_id][choices[_id][i]];
+            amounts[i] = voterChoice[_id][msg.sender][i];
         }
         return amounts;
     } 
+
+    function getAnswer(uint _id) public view isValidId(_id) returns(uint) {
+        require(bets[_id].isAnswerSet, "Answer not set yet");
+        return bets[_id].answer;
+    }
 
     function _getValidIds() internal view returns(uint, uint[] memory) {
         uint[] memory validIds = new uint[](bets.length);
