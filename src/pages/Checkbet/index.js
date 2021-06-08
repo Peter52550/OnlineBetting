@@ -6,18 +6,25 @@ import styles from "./index.module.css";
 import { Input, Row, Col, Button, Modal } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 export default function CheckBet(props) {
-  const { handleBettingChange, id, cardUserBettings, cardOwnBettings } = props;
+  const {
+    handleBettingChange,
+    id,
+    cardUserBettings,
+    cardOwnBettings,
+    cardAllBettings,
+  } = props;
   const history = useHistory();
   const [token, setToken] = useState([]);
   const [mode, setMode] = useState("");
   const [betInfo, setBetInfo] = useState({});
-
+  console.log(cardAllBettings);
   const tokenDisable = false;
   useEffect(() => {
     let bet = cardOwnBettings.find(({ bet_id }) => bet_id === Number(id));
     if (bet === undefined) {
-      bet = cardUserBettings.find(({ bet_id }) => bet_id === id);
-      setMode("熱門");
+      bet = cardAllBettings.find(({ bet_id }) => bet_id === id);
+      if (bet.status === 1) setMode("熱門");
+      else setMode("全部");
     } else {
       setMode("自己");
     }
@@ -36,8 +43,10 @@ export default function CheckBet(props) {
     let bettings;
     if (mode === "自己") {
       bettings = cardOwnBettings;
-    } else {
+    } else if (mode === "熱門") {
       bettings = cardUserBettings;
+    } else {
+      bettings = cardAllBettings;
     }
     bettings = bettings.filter(({ bet_id }) => Number(bet_id) !== Number(id));
     bettings.unshift(bet);
