@@ -31,16 +31,29 @@ export default function Card({
     // });
     history.push(`/home/${bet_id}`);
   };
-  const total = token.reduce((acc, curValue) => acc + curValue, 0);
+  console.log(token, upperbound);
+  const total = token.reduce(
+    (acc, curValue) => Number(acc) + Number(curValue),
+    0
+  );
+  console.log(total, typeof Number(upperbound), typeof total);
   const haveReward =
-    typeof upperbound === "number" && typeof total === "number";
+    typeof Number(upperbound) === "number" && typeof total === "number";
 
   const distance = ` $ ${
-    Math.round(Math.max(upperbound - total, 0) * 100) / 100
+    Math.round(Math.max(Number(upperbound) - total, 0) * 100) / 100
   }`;
   const accumulate = ` $ ${Math.round(total * 100) / 100}`;
-  const percentage = (total * 100) / (upperbound === 0 ? 1 : upperbound);
-  const max_acc = Math.max.apply(Math, token);
+  const percentage =
+    (total * 100) / (Number(upperbound) === 0 ? 1 : Number(upperbound));
+  const max_acc = Math.max.apply(Math, token) / Number(upperbound);
+  console.log(
+    accumulate,
+    percentage,
+    distance,
+    Math.max.apply(Math, token),
+    Math.max.apply(Math, token) / Number(upperbound)
+  );
   return (
     <div
       className={styles.container}
@@ -88,7 +101,7 @@ export default function Card({
       <Progress
         percent={percentage}
         showInfo={false}
-        success={{ percent: Number(max_acc), strokeColor: "#e29871" }}
+        success={{ percent: Number(max_acc) * 100, strokeColor: "#e29871" }}
         // status="active"
         strokeColor="#0058A3"
         trailColor="#D2D7DC"

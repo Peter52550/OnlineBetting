@@ -54,7 +54,6 @@ export default function CreateBetPage({
       parseInt(moment(lastBetTimeString, dateFormat).format("x"))
     );
   };
-  console.log(formLowerBound, formUpperBound, formPublishTime, formLastBetTime);
   const handleBetTypeChange = (e) => setFormBetType(e.target.value);
   const handleBetOptionsChange = (e, i) => {
     let newOptions = [...formBetOptions];

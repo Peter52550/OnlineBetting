@@ -12,7 +12,7 @@ import CreateBetPage from "../pages/CreateBet";
 import CheckBetPage from "../pages/Checkbet";
 import WheelPage from "../pages/Wheel";
 import paths from "./path";
-import InfoAPI from "../api";
+import { InfoAPI, AdderAPI } from "../api";
 // import AddAccountRecord from "../pages/AddAccountRecord";
 // import AccountRecords from "../pages/AccountRecords";
 // logic
@@ -101,22 +101,6 @@ export default function Router(props) {
     formBetType,
     formBetOptions,
   }) => {
-    setCardOwnBettings([
-      {
-        user_id: 8888,
-        bet_id: Number(id) + 10000,
-        title: formTitleName,
-        lowerbound: formLowerBound,
-        token: Array(formBetOptions.length).fill(0),
-        upperbound: formUpperBound,
-        publishTime: formPublishTime,
-        lastBetTime: formLastBetTime,
-        betType: formBetType,
-        options: formBetOptions,
-        status: 0,
-      },
-      ...cardOwnBettings,
-    ]);
     console.log(
       formLowerBound,
       formUpperBound,
@@ -129,7 +113,8 @@ export default function Router(props) {
         new BN(formLowerBound).toString(),
         new BN(formUpperBound).toString(),
         new BN(formPublishTime / 1000).toString(),
-        new BN(formLastBetTime / 1000).toString()
+        new BN(formLastBetTime / 1000).toString(),
+        formBetOptions
       )
       .send({
         from: accounts[0],
@@ -137,10 +122,44 @@ export default function Router(props) {
     let validIds = await contract.methods.getIds().call({
       from: accounts[0],
     });
+    setCardOwnBettings([
+      {
+        user_id: 8888,
+        bet_id: Number(validIds["0"][validIds["0"].length - 1]),
+        title: formTitleName,
+        lowerbound: formLowerBound,
+        token: Array(formBetOptions.length).fill(0),
+        ownTokens: Array(formBetOptions.length).fill(0),
+        upperbound: formUpperBound,
+        publishTime: formPublishTime,
+        lastBetTime: formLastBetTime,
+        betType: formBetType,
+        options: formBetOptions,
+        status: 0,
+      },
+      ...cardOwnBettings,
+    ]);
+    setCardAllBettings([
+      {
+        user_id: 8888,
+        bet_id: Number(validIds["0"][validIds["0"].length - 1]),
+        title: formTitleName,
+        lowerbound: formLowerBound,
+        token: Array(formBetOptions.length).fill(0),
+        ownTokens: Array(formBetOptions.length).fill(0),
+        upperbound: formUpperBound,
+        publishTime: formPublishTime,
+        lastBetTime: formLastBetTime,
+        betType: formBetType,
+        options: formBetOptions,
+        status: 0,
+      },
+      ...cardAllBettings,
+    ]);
     console.log(validIds);
     // setId(Number(id) + 10000);
-    let iid = validIds["0"][validIds["0"].length - 1];
-    let _ = await addChoice(iid, formBetOptions);
+    // let iid = validIds["0"][validIds["0"].length - 1];
+    // let _ = await addChoice(iid, formBetOptions);
   };
   const addChoice = async (id, choices) => {
     for (let index = 0; index < choices.length; index++) {
@@ -222,6 +241,7 @@ export default function Router(props) {
           accounts,
           validIds
         );
+
         console.log(
           validIds,
           titles,
@@ -238,7 +258,7 @@ export default function Router(props) {
             bet_id: id,
             title: titles[index],
             lowerbound: lowerBounds[index],
-            token: Array(Number(choiceNums[index])).fill(0),
+            token: choiceAmounts[index],
             ownTokens: Array(Number(choiceNums[index])).fill(0),
             upperbound: upperBounds[index],
             publishTime: 1623254399000,
@@ -291,6 +311,7 @@ export default function Router(props) {
                   cardAllBettings={cardAllBettings}
                   contract={contract}
                   accounts={accounts}
+                  web3={web3}
                 />
               )}
             ></Route>
