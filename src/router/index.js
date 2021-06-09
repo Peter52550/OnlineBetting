@@ -6,15 +6,18 @@ import OnlineBetting from "../build/contracts/OnlineBetting.json";
 // react-router
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 // pages
+import RulePage from "../pages/Rules";
 import MainPage from "../pages/Main";
 import CreateBetPage from "../pages/CreateBet";
 import CheckBetPage from "../pages/Checkbet";
 import WheelPage from "../pages/Wheel";
 import paths from "./path";
+import InfoAPI from "../api";
 // import AddAccountRecord from "../pages/AddAccountRecord";
 // import AccountRecords from "../pages/AccountRecords";
 // logic
 // import { init, authState } from "../slices/authSlice";
+const BN = require("bn.js");
 const cardUserBetting = [
   {
     user_id: "ahf8we7fojewo",
@@ -87,6 +90,8 @@ export default function Router(props) {
   const [web3, setWeb3] = useState(null);
   const [accounts, setAccounts] = useState(null);
   const [contract, setContract] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [finish, setFinish] = useState(false);
   const createBet = async ({
     formTitleName,
     formLowerBound,
@@ -112,12 +117,40 @@ export default function Router(props) {
       },
       ...cardOwnBettings,
     ]);
+    console.log(
+      formLowerBound,
+      formUpperBound,
+      formPublishTime,
+      formLastBetTime
+    );
     await contract.methods
-      .addBet(formTitleName, formLowerBound, formUpperBound, 123, 456)
+      .addBet(
+        formTitleName,
+        new BN(formLowerBound).toString(),
+        new BN(formUpperBound).toString(),
+        new BN(formPublishTime / 1000).toString(),
+        new BN(formLastBetTime / 1000).toString()
+      )
       .send({
-        from: this.accounts[0],
+        from: accounts[0],
       });
-    setId(Number(id) + 10000);
+    let validIds = await contract.methods.getIds().call({
+      from: accounts[0],
+    });
+    console.log(validIds);
+    // setId(Number(id) + 10000);
+    let iid = validIds["0"][validIds["0"].length - 1];
+    let _ = await addChoice(iid, formBetOptions);
+  };
+  const addChoice = async (id, choices) => {
+    for (let index = 0; index < choices.length; index++) {
+      const choice = choices[index];
+      const res = await contract.methods.addChoice(id, choice).send({
+        from: accounts[0],
+      });
+      console.log(res);
+    }
+    return 88;
   };
   const handleBettingChange = (cardList, status) => {
     if (status === "自己") {
@@ -134,16 +167,17 @@ export default function Router(props) {
       setCardUserBettings(cardList);
     }
   };
+
   useEffect(async () => {
-    let newPath = paths;
-    Object.entries(newPath).map(([type, cards]) => {
-      cards.map((ele) => {
-        ele.bets = publicCards;
-        return ele;
-      });
-      return cards;
-    });
-    setCardAllBets(newPath);
+    // let newPath = paths;
+    // Object.entries(newPath).map(([type, cards]) => {
+    //   cards.map((ele) => {
+    //     ele.bets = publicCards;
+    //     return ele;
+    //   });
+    //   return cards;
+    // });
+    // setCardAllBets(newPath);
     try {
       const web3 = await getWeb3();
       const accounts = await web3.eth.getAccounts();
@@ -157,45 +191,123 @@ export default function Router(props) {
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
+      let validIds = await InfoAPI.getIds(instance, accounts);
+      if (validIds.length === 0) {
+        setCardAllBettings([]);
+        setCardOwnBettings([]);
+      } else {
+        let titles = await InfoAPI.getTitles(instance, accounts, validIds);
+        let lowerBounds = await InfoAPI.getLowerBounds(
+          instance,
+          accounts,
+          validIds
+        );
+        let upperBounds = await InfoAPI.getUpperBounds(
+          instance,
+          accounts,
+          validIds
+        );
+        let currentAmounts = await InfoAPI.getCurrentAmounts(
+          instance,
+          accounts,
+          validIds
+        );
+        let choiceNums = await InfoAPI.getChoiceNums(
+          instance,
+          accounts,
+          validIds
+        );
+        let choiceAmounts = await InfoAPI.getChoicesAmounts(
+          instance,
+          accounts,
+          validIds
+        );
+        console.log(
+          validIds,
+          titles,
+          lowerBounds,
+          upperBounds,
+          currentAmounts,
+          choiceNums,
+          choiceAmounts
+        );
+        let ownBets = [];
+        let allBets = [];
+        validIds["0"].forEach((id, index) => {
+          let bet = {
+            bet_id: id,
+            title: titles[index],
+            lowerbound: lowerBounds[index],
+            token: Array(Number(choiceNums[index])).fill(0),
+            ownTokens: Array(Number(choiceNums[index])).fill(0),
+            upperbound: upperBounds[index],
+            publishTime: 1623254399000,
+            lastBetTime: 1623250799000,
+            betType: "multipleChoice",
+            options: [],
+          };
+          if (validIds["1"][index] === true) {
+            ownBets.push({ ...bet, status: 0 });
+            allBets.push({ ...bet, status: 0 });
+          } else {
+            allBets.push({ ...bet, status: 1 });
+          }
+        });
+        setCardOwnBettings(ownBets);
+        setCardAllBettings(allBets);
+        console.log(ownBets);
+      }
+      setId(Number(id) + 10000);
+      setFinish(true);
+      setLoading(false);
     } catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`
       );
+
       console.error(error);
     }
   }, []);
   return (
     <>
-      <BrowserRouter>
-        <Switch>
-          <Route path="/createbet">
-            <CreateBetPage createBet={createBet} />
-          </Route>
-          <Route path="/wheel">
-            <WheelPage />
-          </Route>
-          <Route
-            path="/:id"
-            render={(props) => (
-              <CheckBetPage
-                handleBettingChange={handleBettingChange}
-                id={props.match.params.id}
-                cardUserBettings={cardUserBettings}
-                cardOwnBettings={cardOwnBettings}
+      {loading ? (
+        <div>loading...</div>
+      ) : (
+        <BrowserRouter>
+          <Switch>
+            <Route exact path="/home/createbet">
+              <CreateBetPage createBet={createBet} />
+            </Route>
+            <Route exact path="/home/wheel">
+              <WheelPage />
+            </Route>
+            <Route
+              path="/home/:id"
+              render={(props) => (
+                <CheckBetPage
+                  handleBettingChange={handleBettingChange}
+                  id={props.match.params.id}
+                  cardOwnBettings={cardOwnBettings}
+                  cardAllBettings={cardAllBettings}
+                  contract={contract}
+                  accounts={accounts}
+                />
+              )}
+            ></Route>
+            <Route path="/home" exact>
+              <MainPage
                 cardAllBettings={cardAllBettings}
+                cardOwnBettings={cardOwnBettings}
+                paths={paths}
+                cardAllBets={cardAllBets}
               />
-            )}
-          ></Route>
-          <Route path="/" exact>
-            <MainPage
-              cardUserBettings={cardUserBettings}
-              cardOwnBettings={cardOwnBettings}
-              paths={paths}
-              cardAllBets={cardAllBets}
-            />
-          </Route>
-        </Switch>
-      </BrowserRouter>
+            </Route>
+            <Route path="/" exact>
+              <RulePage setLoading={setLoading} finish={finish} />
+            </Route>
+          </Switch>
+        </BrowserRouter>
+      )}
     </>
   );
 }

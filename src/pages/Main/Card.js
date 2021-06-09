@@ -29,7 +29,7 @@ export default function Card({
     //   token: token,
     //   upperbound: upperbound,
     // });
-    history.push(`/${bet_id}`);
+    history.push(`/home/${bet_id}`);
   };
   const total = token.reduce((acc, curValue) => acc + curValue, 0);
   const haveReward =

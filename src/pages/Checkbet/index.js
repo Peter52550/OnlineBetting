@@ -5,21 +5,24 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import styles from "./index.module.css";
 import { Input, Row, Col, Button, Modal } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+import InfoAPI from "../../api";
 export default function CheckBet(props) {
   const {
     handleBettingChange,
     id,
-    cardUserBettings,
     cardOwnBettings,
     cardAllBettings,
+    contract,
+    accounts,
   } = props;
   const history = useHistory();
   const [token, setToken] = useState([]);
   const [mode, setMode] = useState("");
   const [betInfo, setBetInfo] = useState({});
-  console.log(cardAllBettings);
+  // console.log(cardOwnBettings);
+  // console.log(cardAllBettings);
   const tokenDisable = false;
-  useEffect(() => {
+  useEffect(async () => {
     let bet = cardOwnBettings.find(({ bet_id }) => bet_id === Number(id));
     if (bet === undefined) {
       bet = cardAllBettings.find(({ bet_id }) => bet_id === id);
@@ -28,6 +31,23 @@ export default function CheckBet(props) {
     } else {
       setMode("自己");
     }
+    bet.options = await InfoAPI.getChoices(
+      contract,
+      accounts,
+      bet.bet_id,
+      bet.token
+    );
+    // let token = await contract.methods.getAddressAmount(bet.bet_id).send({
+    //   from: accounts[0],
+    // });
+    // bet.ownTokens = await InfoAPI.getAddressAmounts(
+    //   contract,
+    //   accounts,
+    //   bet.bet_id
+    // );
+
+    console.log(bet);
+
     setBetInfo(bet);
     setToken(Array(bet.options.length));
   }, []);
@@ -43,8 +63,6 @@ export default function CheckBet(props) {
     let bettings;
     if (mode === "自己") {
       bettings = cardOwnBettings;
-    } else if (mode === "熱門") {
-      bettings = cardUserBettings;
     } else {
       bettings = cardAllBettings;
     }
