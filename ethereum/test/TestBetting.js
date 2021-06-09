@@ -9,8 +9,8 @@ contract('Peter', (accounts) => {
   })
 
   it('TestAddBet', async () => {
-    const id0 = await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
-    const id1 = await token.addBet("Howard", 0, 200, 123, 456, {from: accounts[0]});
+    await token.addBet("Peter", 0, 100, 1800000000, 456, ["haha", "isme", "asdf"],{from: accounts[0]});
+    await token.addBet("Howard", 0, 200, 1800000000, 456, [],{from: accounts[0]});
 
     const title_0 = await token.getTitle.call(0);
     const title_1 = await token.getTitle.call(1);
@@ -20,6 +20,9 @@ contract('Peter', (accounts) => {
     const lower_1 = await token.getLowerBound.call(1);
     const current_0 = await token.getCurrentAmount.call(0);
     const current_1 = await token.getCurrentAmount.call(1);
+    const nowTime = await token.getTime.call();
+
+    console.log(nowTime.toNumber());
     
     assert.strictEqual(title_0, "Peter");
     assert.strictEqual(title_1, "Howard");
@@ -29,14 +32,6 @@ contract('Peter', (accounts) => {
     assert.strictEqual(lower_1.toNumber(), 0);
     assert.strictEqual(current_0.toNumber(), 0);
     assert.strictEqual(current_1.toNumber(), 0);
-  })
-
-  it('TestAddChoice', async () => {
-    await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
-
-    await token.addChoice(0, "haha");
-    await token.addChoice(0, "isme");
-    await token.addChoice(0, "asdf")
 
     const choiceNum = await token.getChoiceNum(0);
     const choice0 = await token.getChoice(0, 0);
@@ -50,8 +45,8 @@ contract('Peter', (accounts) => {
   })
 
   it('TestAddMoney', async () => {
-    await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
-    await token.addBet("Howard", 0, 200, 123, 456, {from: accounts[0]});
+    await token.addBet("Peter", 0, 100, 1800000000, 456, ["asdf", "zxcv"], {from: accounts[0]});
+    await token.addBet("Howard", 0, 200, 1800000000, 456, ["asdf", "zxcv"],{from: accounts[0]});
 
     var current_0 = await token.getCurrentAmount.call(0);
     var current_1 = await token.getCurrentAmount.call(1);
@@ -59,30 +54,53 @@ contract('Peter', (accounts) => {
     assert.strictEqual(current_0.toNumber(), 0);
     assert.strictEqual(current_1.toNumber(), 0);
 
-    await token.addMoney(0, "asdf", 10, {from: accounts[0], value: web3.utils.toWei("0.01")});
+    const num0 = await token.getChoiceNum.call(0);
+    const choice0 = await token.getChoice.call(0, 0);
+    const choice1 = await token.getChoice.call(0, 1);
+
+    assert.strictEqual(num0.toNumber(), 2);
+    assert.strictEqual(choice0, "asdf");
+    assert.strictEqual(choice1, "zxcv");
+
+    await token.addMoney(0, 0, 10, {from: accounts[0], value: web3.utils.toWei("0.01")});
+    await token.addMoney(0, 0, 20, {from: accounts[1], value: web3.utils.toWei("0.02")});
 
     current_0 = await token.getCurrentAmount.call(0);
     current_1 = await token.getCurrentAmount.call(1);
-    var asdf = await token.getChoiceAmount.call(0, "asdf");
+    var asdf = await token.getChoicesAmount.call(0);
+    var addr0 = await token.getAddressAmount.call(0, {from: accounts[0]});
+    var addr1 = await token.getAddressAmount.call(0, {from: accounts[1]});
 
-    assert.strictEqual(current_0.toNumber(), 10);
+    assert.strictEqual(current_0.toNumber(), 30);
     assert.strictEqual(current_1.toNumber(), 0);
-    assert.strictEqual(asdf.toNumber(), 10);
+    assert.strictEqual(asdf[0].toNumber(), 30);
+    assert.strictEqual(addr0[0].toNumber(), 10);
+    assert.strictEqual(addr1[0].toNumber(), 20);
   })
 
   it('TestReturnBets', async () => {
-    await token.addBet("Peter", 0, 100, 123, 456, {from: accounts[0]});
-    await token.addBet("Howard", 0, 200, 123, 456, {from: accounts[1]});
-    await token.addBet("HaHa", 0, 200, 123, 456, {from: accounts[0]});
-    await token.addBet("asdf", 0, 200, 123, 456, {from: accounts[0]});
-    await token.addBet("zxcv", 0, 200, 123, 456, {from: accounts[1]});
+    await token.addBet("Peter", 0, 100, 1800000000, 456, [],{from: accounts[0]});
+    await token.addBet("Howard", 0, 200, 1800000000, 456, [],{from: accounts[1]});
+    await token.addBet("HaHa", 0, 200, 1800000000, 456, [],{from: accounts[0]});
+    await token.addBet("asdf", 0, 200, 1800000000, 456, [],{from: accounts[0]});
+    await token.addBet("zxcv", 0, 200, 1800000000, 456, [],{from: accounts[1]});
 
-    const ids = await token.getOwnId.call();
+    const ids = await token.getIds.call();
     const ans = [true, false, true, true, false];
 
     var i;
     for(i = 0; i < 5; i++) {
-      assert.strictEqual(ids[i], ans[i]);
+      assert.strictEqual(ids[1][i], ans[i]);
     }
+  })
+
+  it('TestAnswerSelect', async () => {
+    await token.addBet("Peter", 0, 100, 1800000000, 456, ["haha", "isme", "asdf"], {from: accounts[0]});
+
+    await token.setAnswer(0, 1, {from: accounts[0]});
+
+    const answer = await token.getAnswer(0);
+
+    assert.strictEqual(answer.toNumber(), 1);
   })
 })
