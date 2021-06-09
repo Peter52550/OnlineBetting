@@ -1,4 +1,5 @@
-pragma solidity >=0.4.21 <0.6.0;
+pragma solidity >=0.6.0 <0.8.0;
+pragma experimental ABIEncoderV2;
 
 contract OnlineBetting {
 
@@ -14,6 +15,7 @@ contract OnlineBetting {
     //Bet
     struct Bet {
         string title;
+        string[] choices;
         address owner;
         uint lowerBound;
         uint currentAmount;
@@ -21,14 +23,13 @@ contract OnlineBetting {
         uint publishTime;
         uint lastBetTime;
         uint answer;
+        uint[] currentChoices;
+        address[] voter;
         bool isAnswerSet;
     }
 
     //Bet list
     Bet[] bets;
-    mapping (uint => string[]) choices;
-    mapping (uint => uint[]) currentChoice;
-    mapping (uint => address[]) voters;
     mapping (uint => mapping (address => uint[])) voterChoice;
 
     //Modifiers
@@ -46,23 +47,28 @@ contract OnlineBetting {
 
     //functions
     //Add bet to bets
-    function addBet(string memory _title, uint _lowerBound, uint _upperBound, uint _publishTime, uint _lastBetTime) public {
-        Bet memory bet = Bet(_title, msg.sender, _lowerBound, 0, _upperBound, _publishTime, _lastBetTime, 0, false);
-        uint betId = bets.push(bet) - 1;
+    function addBet(string memory _title, uint _lowerBound, uint _upperBound, uint _publishTime, uint _lastBetTime, string[] memory _choices) public {
+        uint betId = bets.length;
+        uint choiceLength = _choices.length;
+        uint[] memory currentChoices = new uint[](choiceLength);
+        Bet storage bet = bets.push();
+        bet.title = _title;
+        bet.owner = msg.sender;
+        bet.lowerBound = _lowerBound;
+        bet.upperBound = _upperBound;
+        bet.publishTime = _publishTime;
+        bet.lastBetTime = _lastBetTime;
+        bet.choices = _choices;
+        bet.currentChoices = currentChoices;
         emit BetAdded(betId, _title);
-    }
-
-    function addChoice(uint _id, string memory _choice) public {
-        choices[_id].push(_choice);
-        currentChoice[_id].push(0);
     }
 
     function addMoney(uint _id, uint _choice, uint _amount) public payable isValidId(_id) isValidAmount(_id, _amount) {
         //require(bets[_id].owner != msg.sender, "Cannot add money to your own bets.");
         require(msg.value == _amount*SMALLEST_FEE, "Not Enough Money");
         bets[_id].currentAmount += _amount;
-        currentChoice[_id][_choice] += _amount;
-        voters[_id].push(msg.sender);
+        bets[_id].currentChoices[_choice] += _amount;
+        _addressInit(_id, msg.sender);
         voterChoice[_id][msg.sender][_choice] += _amount;
         emit MoneyAdded(_id, msg.sender, _choice, _amount);
     }
@@ -79,19 +85,32 @@ contract OnlineBetting {
         require(msg.sender == bets[_id].owner);
         uint creatorReward = uint(bets[_id].currentAmount*5/100);
         uint otherReward = uint(bets[_id].currentAmount*9/10);
-        uint numVoters = voters[_id].length;
+        uint numVoters = bets[_id].voter.length;
         uint answer = bets[_id].answer;
 
         address payable receiver = msg.sender;
         receiver.transfer(creatorReward * SMALLEST_FEE);
         emit MoneyGiven(receiver, creatorReward);
         for(uint i = 0; i < numVoters; i++) {
-            receiver = address(uint160(voters[_id][i]));
-            receiver.transfer(otherReward * SMALLEST_FEE * voterChoice[_id][receiver][answer] / currentChoice[_id][answer]);
-            emit MoneyGiven(receiver, otherReward * voterChoice[_id][receiver][answer] / currentChoice[_id][answer]);
+            receiver = payable(bets[_id].voter[i]);
+            receiver.transfer(otherReward * SMALLEST_FEE * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
+            emit MoneyGiven(receiver, otherReward * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
         }
     }
 
+    function getBets() public view returns(Bet[] memory) {
+        uint count;
+        uint[] memory ids;
+        (count, ids) = _getValidIds();
+        Bet[] memory validBets = new Bet[](count);
+        for(uint i = 0; i < count; i++) {
+            validBets[i] = bets[ids[i]];
+        }
+        return validBets;
+    }
+
+
+// version 1.0
     function getIds() public view returns(uint[] memory, bool[] memory) {
         uint count;
         uint[] memory ids;
@@ -126,20 +145,15 @@ contract OnlineBetting {
     }
 
     function getChoiceNum(uint _id) public view isValidId(_id) returns(uint) {
-        return choices[_id].length;
+        return bets[_id].choices.length;
     }
 
     function getChoice(uint _id, uint _choice) public view isValidId(_id) returns(string memory) {
-        return choices[_id][_choice];
+        return bets[_id].choices[_choice];
     }
 
     function getChoicesAmount(uint _id) public view isValidId(_id) returns(uint[] memory) {
-        uint len = getChoiceNum(_id);
-        uint[] memory amounts = new uint[](len);
-        for(uint i = 0; i < len; i++) {
-            amounts[i] = currentChoice[_id][i];
-        }
-        return amounts;
+        return bets[_id].currentChoices;
     }
 
     function getAddressAmount(uint _id) public view isValidId(_id) returns(uint[] memory) {
@@ -156,6 +170,10 @@ contract OnlineBetting {
         return bets[_id].answer;
     }
 
+    function getTime() public view returns(uint) {
+        return now;
+    }
+
     function _getValidIds() internal view returns(uint, uint[] memory) {
         uint[] memory validIds = new uint[](bets.length);
         uint count = 0;
@@ -170,5 +188,16 @@ contract OnlineBetting {
 
     function _isIdValid(uint _id) internal view returns(bool) {
         return (now <= bets[_id].publishTime);
+    }
+
+    function _addressInit(uint _id, address _better) internal isValidId(_id) {
+        uint len = bets[_id].voter.length;
+        bool isInit = false;
+        for(uint i = 0; i < len; i++) {
+            if(bets[_id].voter[i] == _better) isInit = true;
+        }
+        if(!isInit) {
+            voterChoice[_id][msg.sender] = new uint[](getChoiceNum(_id));
+        }
     }
 }

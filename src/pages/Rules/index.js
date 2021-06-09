@@ -1,7 +1,7 @@
 import { Checkbox } from "antd";
 import { useHistory } from "react-router-dom";
 import styles from "./index.module.css";
-import InfoAPI from "../../api";
+import { InfoAPI, AdderAPI } from "../../api";
 export default function Rules({ setLoading, finish }) {
   const history = useHistory();
   const redirect = () => {
