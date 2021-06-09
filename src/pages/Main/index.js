@@ -47,7 +47,7 @@ const publicCards = [
   },
 ];
 export default function MainPage({
-  cardUserBettings,
+  cardAllBettings,
   cardOwnBettings,
   cardAllBets,
 }) {
@@ -59,7 +59,7 @@ export default function MainPage({
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      history.push(`/${url}`);
+      history.push(`/home/${url}`);
     }, 400);
   };
 
@@ -256,7 +256,7 @@ export default function MainPage({
                   )}
                   <br />
                   <div className={styles.title}>熱門賭局</div>
-                  <CardList cards={cardUserBettings} />
+                  <CardList cards={cardAllBettings} />
                   <Button
                     type="primary"
                     className={styles.button}

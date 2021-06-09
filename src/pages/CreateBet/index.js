@@ -31,7 +31,7 @@ export default function CreateBetPage({
       formBetType: formBetType,
       formBetOptions: formBetOptions.filter((option) => option !== ""),
     });
-    history.push("/");
+    history.push("/home");
   };
   const [formTitleName, setFormTitleName] = useState(TitleName);
   const [formLowerBound, setFormLowerBound] = useState();
@@ -54,6 +54,7 @@ export default function CreateBetPage({
       parseInt(moment(lastBetTimeString, dateFormat).format("x"))
     );
   };
+  console.log(formLowerBound, formUpperBound, formPublishTime, formLastBetTime);
   const handleBetTypeChange = (e) => setFormBetType(e.target.value);
   const handleBetOptionsChange = (e, i) => {
     let newOptions = [...formBetOptions];
