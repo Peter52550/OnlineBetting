@@ -20,13 +20,13 @@ import {
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
 function disabledDate(current) {
   // Can not select days before today and today
-  return current && current < moment().endOf("day");
+  // return current && current < moment().endOf("day");
 }
 function disabledDateTime() {
   return {
     disabledHours: () => range(0, 24).splice(4, 20),
-    disabledMinutes: () => range(30, 60),
-    disabledSeconds: () => [55, 56],
+    // disabledMinutes: () => range(30, 60),
+    // disabledSeconds: () => [55, 56],
   };
 }
 function range(start, end) {
@@ -110,23 +110,7 @@ export default function BetForm({
           />
         </Col>
       </Row>
-      <Row className={styles.vertical_spacing}>
-        <Col span={4} className={styles.blue}>
-          結果公開時間{" "}
-        </Col>
-        <Col span={10}>
-          <DatePicker
-            className={styles.input}
-            size="large"
-            format={dateFormat}
-            value={moment(formPublishTime)}
-            onChange={handlePublishTimeChange}
-            disabledDate={disabledDate}
-            disabledTime={disabledDateTime}
-            showTime={{ defaultValue: moment("00:00:00", "HH:mm:ss") }}
-          />
-        </Col>
-      </Row>
+
       <Row className={styles.vertical_spacing}>
         <Col span={4} className={styles.blue}>
           最後下注時間{" "}
@@ -138,6 +122,23 @@ export default function BetForm({
             format={dateFormat}
             value={moment(formLastBetTime)}
             onChange={handleLastBetTimeChange}
+            disabledDate={disabledDate}
+            disabledTime={disabledDateTime}
+            showTime={{ defaultValue: moment("00:00:00", "HH:mm:ss") }}
+          />
+        </Col>
+      </Row>
+      <Row className={styles.vertical_spacing}>
+        <Col span={4} className={styles.blue}>
+          結果公開時間{" "}
+        </Col>
+        <Col span={10}>
+          <DatePicker
+            className={styles.input}
+            size="large"
+            format={dateFormat}
+            value={moment(formPublishTime)}
+            onChange={handlePublishTimeChange}
             disabledDate={disabledDate}
             disabledTime={disabledDateTime}
             showTime={{ defaultValue: moment("00:00:00", "HH:mm:ss") }}

@@ -66,6 +66,7 @@ export default function CreateBetPage({
   const removeClick = (i) => {
     setFormBetOptions(formBetOptions.filter((option, index) => index !== i));
   };
+  console.log("publish: ", formPublishTime, "lastbet: ", formLastBetTime);
 
   const handleConfirm = () => {
     if (

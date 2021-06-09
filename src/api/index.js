@@ -98,6 +98,12 @@ export const InfoAPI = {
     );
     return values;
   },
+  getBets: async (contract, accounts) => {
+    let values = await contract.methods.getBets().call({
+      from: accounts[0],
+    });
+    return values;
+  },
 };
 export const AdderAPI = {
   addMoney: async (contract, accounts, web3, id, arr, nums) => {
