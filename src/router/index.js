@@ -11,6 +11,7 @@ import MainPage from "../pages/Main";
 import CreateBetPage from "../pages/CreateBet";
 import CheckBetPage from "../pages/Checkbet";
 import WheelPage from "../pages/Wheel";
+import Loading from "../pages/Loading";
 import paths from "./path";
 import { InfoAPI, AdderAPI } from "../api";
 // import AddAccountRecord from "../pages/AddAccountRecord";
@@ -75,7 +76,6 @@ const publicCards = [
     status: 2,
   },
 ];
-console.log(paths);
 export default function Router(props) {
   //   const dispatch = useDispatch();
   //   const { isInit } = useSelector(authState);
@@ -122,6 +122,21 @@ export default function Router(props) {
     let validIds = await contract.methods.getIds().call({
       from: accounts[0],
     });
+    console.log(formPublishTime, formLastBetTime);
+    console.log({
+      user_id: 8888,
+      bet_id: Number(validIds["0"][validIds["0"].length - 1]),
+      title: formTitleName,
+      lowerbound: formLowerBound,
+      token: Array(formBetOptions.length).fill(0),
+      ownTokens: Array(formBetOptions.length).fill(0),
+      upperbound: formUpperBound,
+      publishTime: formPublishTime,
+      lastBetTime: formLastBetTime,
+      betType: formBetType,
+      options: formBetOptions,
+      status: 0,
+    });
     setCardOwnBettings([
       {
         user_id: 8888,
@@ -139,6 +154,7 @@ export default function Router(props) {
       },
       ...cardOwnBettings,
     ]);
+
     setCardAllBettings([
       {
         user_id: 8888,
@@ -161,6 +177,7 @@ export default function Router(props) {
     // let iid = validIds["0"][validIds["0"].length - 1];
     // let _ = await addChoice(iid, formBetOptions);
   };
+  console.log(cardOwnBettings);
   const addChoice = async (id, choices) => {
     for (let index = 0; index < choices.length; index++) {
       const choice = choices[index];
@@ -188,15 +205,6 @@ export default function Router(props) {
   };
 
   useEffect(async () => {
-    // let newPath = paths;
-    // Object.entries(newPath).map(([type, cards]) => {
-    //   cards.map((ele) => {
-    //     ele.bets = publicCards;
-    //     return ele;
-    //   });
-    //   return cards;
-    // });
-    // setCardAllBets(newPath);
     try {
       const web3 = await getWeb3();
       const accounts = await web3.eth.getAccounts();
@@ -215,6 +223,8 @@ export default function Router(props) {
         setCardAllBettings([]);
         setCardOwnBettings([]);
       } else {
+        let bets = await InfoAPI.getBets(instance, accounts);
+        console.log(bets);
         let titles = await InfoAPI.getTitles(instance, accounts, validIds);
         let lowerBounds = await InfoAPI.getLowerBounds(
           instance,
@@ -253,16 +263,22 @@ export default function Router(props) {
         );
         let ownBets = [];
         let allBets = [];
+
         validIds["0"].forEach((id, index) => {
+          let tokens = [];
+          choiceAmounts[index].forEach((ele) => {
+            tokens.push(ele);
+          });
+
           let bet = {
             bet_id: id,
             title: titles[index],
             lowerbound: lowerBounds[index],
-            token: choiceAmounts[index],
+            token: tokens,
             ownTokens: Array(Number(choiceNums[index])).fill(0),
             upperbound: upperBounds[index],
-            publishTime: 1623254399000,
-            lastBetTime: 1623250799000,
+            publishTime: Number(bets[index]["6"]) * 1000,
+            lastBetTime: Number(bets[index]["7"] * 1000),
             betType: "multipleChoice",
             options: [],
           };
@@ -273,9 +289,17 @@ export default function Router(props) {
             allBets.push({ ...bet, status: 1 });
           }
         });
+        let newPath = paths;
+        Object.entries(newPath).map(([type, cards]) => {
+          cards.map((ele) => {
+            ele.bets = allBets;
+            return ele;
+          });
+          return cards;
+        });
+        setCardAllBets(newPath);
         setCardOwnBettings(ownBets);
         setCardAllBettings(allBets);
-        console.log(ownBets);
       }
       setId(Number(id) + 10000);
       setFinish(true);
@@ -288,10 +312,13 @@ export default function Router(props) {
       console.error(error);
     }
   }, []);
+  console.log(cardAllBets);
   return (
     <>
       {loading ? (
-        <div>loading...</div>
+        <div>
+          <Loading />
+        </div>
       ) : (
         <BrowserRouter>
           <Switch>

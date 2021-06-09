@@ -239,15 +239,30 @@ export default function MainPage({
                 <>
                   <div style={{ display: "flex" }}>
                     <div className={styles.title}>您所創建的賭局</div>
-                    <Button
-                      type="primary"
-                      className={styles.button}
-                      icon={<PoweroffOutlined />}
-                      loading={loading}
-                      onClick={() => enterLoading("createbet")}
+                    <div
+                      style={{ display: "flex", marginLeft: 400, width: 500 }}
                     >
-                      發布賭局
-                    </Button>
+                      <Button
+                        type="primary"
+                        className={styles.button}
+                        style={{ marginRight: 20 }}
+                        icon={<PoweroffOutlined />}
+                        loading={loading}
+                        onClick={() => enterLoading("wheel")}
+                      >
+                        進入轉盤
+                      </Button>
+                      <Button
+                        type="primary"
+                        className={styles.button}
+                        // style={{ marginLeft: "-100px" }}
+                        icon={<PoweroffOutlined />}
+                        loading={loading}
+                        onClick={() => enterLoading("createbet")}
+                      >
+                        發布賭局
+                      </Button>
+                    </div>
                   </div>
                   {cardOwnBettings.length === 0 ? (
                     <div className={styles.text}>您尚未創建賭局喔</div>
@@ -257,15 +272,6 @@ export default function MainPage({
                   <br />
                   <div className={styles.title}>熱門賭局</div>
                   <CardList cards={cardAllBettings} />
-                  <Button
-                    type="primary"
-                    className={styles.button}
-                    icon={<PoweroffOutlined />}
-                    loading={loading}
-                    onClick={() => enterLoading("wheel")}
-                  >
-                    進入轉盤
-                  </Button>
                 </>
               ) : (
                 <DashCards cards={currentBet.bets} />

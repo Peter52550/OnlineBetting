@@ -5,6 +5,7 @@ contract OnlineBetting {
 
     //constants
     uint constant SMALLEST_FEE = 0.001 ether;
+    uint constant PERCENTAGE_FEE = 0.00001 ether;
 
     //events
     event BetAdded(uint betId, string title);  //emit when
@@ -83,19 +84,23 @@ contract OnlineBetting {
     function distributeMoney(uint _id) public payable {
         require(bets[_id].isAnswerSet, "Answer Not Set");
         require(msg.sender == bets[_id].owner);
-        uint creatorReward = uint(bets[_id].currentAmount*5/100);
-        uint otherReward = uint(bets[_id].currentAmount*9/10);
+        uint creatorReward = uint(bets[_id].currentAmount*5);
+        uint otherReward = uint(bets[_id].currentAmount*90);
         uint numVoters = bets[_id].voter.length;
         uint answer = bets[_id].answer;
 
         address payable receiver = msg.sender;
-        receiver.transfer(creatorReward * SMALLEST_FEE);
+        receiver.transfer(creatorReward * PERCENTAGE_FEE);
         emit MoneyGiven(receiver, creatorReward);
         for(uint i = 0; i < numVoters; i++) {
             receiver = payable(bets[_id].voter[i]);
-            receiver.transfer(otherReward * SMALLEST_FEE * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
+            receiver.transfer(otherReward * PERCENTAGE_FEE * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
             emit MoneyGiven(receiver, otherReward * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
         }
+    }
+
+    function getLastBet() public view returns(Bet memory) {
+        return bets[bets.length-1];
     }
 
     function getBets() public view returns(Bet[] memory) {
@@ -159,8 +164,10 @@ contract OnlineBetting {
     function getAddressAmount(uint _id) public view isValidId(_id) returns(uint[] memory) {
         uint len = getChoiceNum(_id);
         uint[] memory amounts = new uint[](len);
-        for(uint i = 0; i < len; i++) {
-            amounts[i] = voterChoice[_id][msg.sender][i];
+        if(_hasBet(_id, msg.sender)) {
+            for(uint i = 0; i < len; i++) {
+                amounts[i] = voterChoice[_id][msg.sender][i];
+            }
         }
         return amounts;
     } 
@@ -190,13 +197,18 @@ contract OnlineBetting {
         return (now <= bets[_id].publishTime);
     }
 
-    function _addressInit(uint _id, address _better) internal isValidId(_id) {
+    function _hasBet(uint _id, address _better) internal view returns(bool) {
         uint len = bets[_id].voter.length;
-        bool isInit = false;
         for(uint i = 0; i < len; i++) {
-            if(bets[_id].voter[i] == _better) isInit = true;
+            if(bets[_id].voter[i] == _better) return true;
         }
+        return false;
+    }
+
+    function _addressInit(uint _id, address _better) internal isValidId(_id) {
+        bool isInit = _hasBet(_id, _better);
         if(!isInit) {
+            bets[_id].voter.push(_better);
             voterChoice[_id][msg.sender] = new uint[](getChoiceNum(_id));
         }
     }

@@ -31,12 +31,10 @@ export default function Card({
     // });
     history.push(`/home/${bet_id}`);
   };
-  console.log(token, upperbound);
   const total = token.reduce(
     (acc, curValue) => Number(acc) + Number(curValue),
     0
   );
-  console.log(total, typeof Number(upperbound), typeof total);
   const haveReward =
     typeof Number(upperbound) === "number" && typeof total === "number";
 
@@ -47,13 +45,13 @@ export default function Card({
   const percentage =
     (total * 100) / (Number(upperbound) === 0 ? 1 : Number(upperbound));
   const max_acc = Math.max.apply(Math, token) / Number(upperbound);
-  console.log(
-    accumulate,
-    percentage,
-    distance,
-    Math.max.apply(Math, token),
-    Math.max.apply(Math, token) / Number(upperbound)
-  );
+  // console.log(
+  //   accumulate,
+  //   percentage,
+  //   distance,
+  //   Math.max.apply(Math, token),
+  //   Math.max.apply(Math, token) / Number(upperbound)
+  // );
   return (
     <div
       className={styles.container}

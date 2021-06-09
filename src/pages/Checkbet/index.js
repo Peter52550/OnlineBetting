@@ -6,6 +6,7 @@ import styles from "./index.module.css";
 import { Input, Row, Col, Button, Modal } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { InfoAPI, AdderAPI } from "../../api";
+import Loading from "../Loading";
 export default function CheckBet(props) {
   const {
     handleBettingChange,
@@ -21,6 +22,7 @@ export default function CheckBet(props) {
   const [mode, setMode] = useState("");
   const [betInfo, setBetInfo] = useState({});
   const [answer, setAnswer] = useState("");
+  const [loading, setLoading] = useState(true);
   const tokenDisable = false;
   useEffect(async () => {
     let bet = cardOwnBettings.find(({ bet_id }) => bet_id === Number(id));
@@ -37,18 +39,18 @@ export default function CheckBet(props) {
       bet.bet_id,
       bet.token
     );
-    // let token = await contract.methods.getAddressAmount(bet.bet_id).call({
-    //   from: accounts[0],
-    // });
-    // bet.ownTokens = await InfoAPI.getAddressAmounts(
-    //   contract,
-    //   accounts,
-    //   bet.bet_id
-    // );
-
+    let tokens = await contract.methods.getAddressAmount(bet.bet_id).call({
+      from: accounts[0],
+    });
+    let tt = [];
+    tokens.map((ele) => {
+      tt.push(ele);
+    });
+    bet.ownTokens = tt;
     console.log(bet);
     setBetInfo(bet);
     setToken(Array(bet.options.length));
+    setLoading(false);
   }, []);
 
   const handleBidChange = async (tokenArray) => {
@@ -101,14 +103,16 @@ export default function CheckBet(props) {
       betInfo.bet_id,
       betInfo.options.indexOf(answer)
     );
+    let e = await AdderAPI.distributeMoney(contract, accounts, betInfo.bet_id);
   };
-  const handleDistributeMoney = async () => {
-    let _ = await AdderAPI.distributeMoney(contract, accounts, betInfo.bet_id);
-  };
+  // const handleDistributeMoney = async () => {
+
+  // };
   const confirm = (func, mode) => {
     let text;
     if (mode === 0) text = "下注嗎??";
-    else if (mode === 1) text = "答案嗎??(答案只能由開局者設定喔)~";
+    else if (mode === 1)
+      text = "答案嗎??(答案只能由開局者設定喔)~確認答案後將直接分發賭金";
     else text = "分發嗎??";
     Modal.confirm({
       title: "Confirm",
@@ -120,7 +124,16 @@ export default function CheckBet(props) {
       // onOk: () => handleBidChange(token),
     });
   };
-  return (
+  console.log(
+    Number(betInfo.lastBetTime),
+    Date.now(),
+    Number(betInfo.lastBetTime) > Date.now()
+  );
+  return loading ? (
+    <div>
+      <Loading />
+    </div>
+  ) : (
     <div>
       <div
         style={{ marginLeft: 20, width: "300px", display: "flex" }}
@@ -183,7 +196,7 @@ export default function CheckBet(props) {
                   placeholder="請輸入下注金額"
                   size="large"
                   value={token[index]}
-                  disabled={tokenDisable}
+                  disabled={Number(betInfo.lastBetTime) < Number(Date.now())}
                   onChange={(e) => handleTokenChange(e, index)}
                 />
               </Col>
@@ -216,7 +229,8 @@ export default function CheckBet(props) {
                   0
                 )
               ) >
-              Number(betInfo.upperbound)
+              Number(betInfo.upperbound) ||
+            betInfo.lastBetTime < Date.now()
           }
           onClick={() => confirm(() => handleBidChange(token), 0)}
         >
@@ -230,6 +244,7 @@ export default function CheckBet(props) {
           <Button
             style={{ marginRight: 20, marginTop: 7 }}
             onClick={() => confirm(() => handleSetAnswer(), 1)}
+            disabled={betInfo.publishTime > Date.now()}
           >
             設定答案:
           </Button>
@@ -238,17 +253,17 @@ export default function CheckBet(props) {
             placeholder="請輸入答案"
             size="large"
             value={answer}
-            // disabled={betInfo.publishTime < Date.now()}
-            disabled={false}
+            disabled={betInfo.publishTime > Date.now()}
+            // disabled={false}
             onChange={(e) => handleAnswerChange(e)}
           />
-          <Button
+          {/*<Button
             style={{ marginLeft: 20, marginTop: 7 }}
             onClick={() => confirm(() => handleDistributeMoney(), 2)}
             // onClick={handleDistributeMoney}
           >
             分發錢錢
-          </Button>
+          </Button>*/}
         </Col>
       </Row>
     </div>
