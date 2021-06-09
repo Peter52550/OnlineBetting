@@ -108,4 +108,70 @@ contract('Peter', (accounts) => {
 
     assert.strictEqual(answer.toNumber(), 1);
   })
+
+  it('TestDistribute', async () => {
+    await token.addBet("Peter", 0, 10000, 1800000000, 456, ["haha", "isme", "asdf"], {from: accounts[0]});
+    await token.setAnswer(0, 1, {from: accounts[0]});
+    await web3.eth.getBalance(accounts[0], function(err, result) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(web3.utils.fromWei(result, "ether") + " ETH")
+      }
+    })
+    await web3.eth.getBalance(accounts[1], function(err, result) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(web3.utils.fromWei(result, "ether") + " ETH")
+      }
+    })
+    await web3.eth.getBalance(accounts[2], function(err, result) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(web3.utils.fromWei(result, "ether") + " ETH")
+      }
+    })
+
+    await token.addMoney(0, 1, 1000, {from: accounts[1], value: web3.utils.toWei("1")});
+    await token.addMoney(0, 2, 2000, {from: accounts[2], value: web3.utils.toWei("2")});
+    await web3.eth.getBalance(accounts[1], function(err, result) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(web3.utils.fromWei(result, "ether") + " ETH")
+      }
+    })
+    await web3.eth.getBalance(accounts[2], function(err, result) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(web3.utils.fromWei(result, "ether") + " ETH")
+      }
+    })
+    await token.distributeMoney(0);
+    await web3.eth.getBalance(accounts[0], function(err, result) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(web3.utils.fromWei(result, "ether") + " ETH")
+      }
+    })
+    await web3.eth.getBalance(accounts[1], function(err, result) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(web3.utils.fromWei(result, "ether") + " ETH")
+      }
+    })
+    await web3.eth.getBalance(accounts[2], function(err, result) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log(web3.utils.fromWei(result, "ether") + " ETH")
+      }
+    })
+
+  })
 })

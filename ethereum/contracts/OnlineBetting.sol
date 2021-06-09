@@ -13,6 +13,10 @@ contract OnlineBetting {
     event AnswerSet(uint betId, uint choice);
     event MoneyGiven(address receiver, uint amount);
 
+    //Enums
+    enum Region{ Other, Taiwan, China, USA, Europe }
+    enum Genre{ Other, News, olitics, Sports }
+
     //Bet
     struct Bet {
         string title;
@@ -67,6 +71,7 @@ contract OnlineBetting {
     function addMoney(uint _id, uint _choice, uint _amount) public payable isValidId(_id) isValidAmount(_id, _amount) {
         //require(bets[_id].owner != msg.sender, "Cannot add money to your own bets.");
         require(msg.value == _amount*SMALLEST_FEE, "Not Enough Money");
+        require(now <= bets[_id].lastBetTime, "Bet time is over");
         bets[_id].currentAmount += _amount;
         bets[_id].currentChoices[_choice] += _amount;
         _addressInit(_id, msg.sender);
@@ -82,20 +87,33 @@ contract OnlineBetting {
     }
 
     function distributeMoney(uint _id) public payable {
-        require(bets[_id].isAnswerSet, "Answer Not Set");
         require(msg.sender == bets[_id].owner);
-        uint creatorReward = uint(bets[_id].currentAmount*5);
-        uint otherReward = uint(bets[_id].currentAmount*90);
-        uint numVoters = bets[_id].voter.length;
-        uint answer = bets[_id].answer;
+        if(bets[_id].isAnswerSet) {
+            uint creatorReward = uint(bets[_id].currentAmount*5);
+            uint otherReward = uint(bets[_id].currentAmount*90);
+            uint numVoters = bets[_id].voter.length;
+            uint answer = bets[_id].answer;
 
-        address payable receiver = msg.sender;
-        receiver.transfer(creatorReward * PERCENTAGE_FEE);
-        emit MoneyGiven(receiver, creatorReward);
-        for(uint i = 0; i < numVoters; i++) {
-            receiver = payable(bets[_id].voter[i]);
-            receiver.transfer(otherReward * PERCENTAGE_FEE * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
-            emit MoneyGiven(receiver, otherReward * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
+            address payable receiver = msg.sender;
+            receiver.transfer(creatorReward * PERCENTAGE_FEE);
+            emit MoneyGiven(receiver, creatorReward);
+            for(uint i = 0; i < numVoters; i++) {
+                receiver = payable(bets[_id].voter[i]);
+                receiver.transfer(otherReward * PERCENTAGE_FEE * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
+                emit MoneyGiven(receiver, otherReward * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
+            }
+        }
+        else {
+            address payable receiver;
+            uint numVoters = bets[_id].voter.length;
+            uint numChoices = bets[_id].choices.length;
+            for(uint i = 0; i < numVoters; i++) {
+                receiver = payable(bets[_id].voter[i]);
+                for(uint j = 0; j < numChoices; j++) {
+                    receiver.transfer(voterChoice[_id][receiver][j] * SMALLEST_FEE);
+                    emit MoneyGiven(receiver, voterChoice[_id][receiver][j]);
+                }
+            }
         }
     }
 
@@ -211,5 +229,15 @@ contract OnlineBetting {
             bets[_id].voter.push(_better);
             voterChoice[_id][msg.sender] = new uint[](getChoiceNum(_id));
         }
+    }
+
+    function _str2Region(string memory _region) internal pure returns(Region) {
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Taiwan"))) return Region.Taiwan;
+        else return Region.Other;
+    }
+
+    function _str2Genre(string memory _genre) internal pure returns(Genre) {
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("News"))) return Genre.News;
+        return Genre.Other;
     }
 }
