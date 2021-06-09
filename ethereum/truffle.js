@@ -60,6 +60,7 @@ module.exports = {
       //  },
       //  evmVersion: "byzantium"
       // }
+      version: "^0.6.0",
     }
   }
 }
