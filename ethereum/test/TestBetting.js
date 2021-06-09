@@ -10,19 +10,20 @@ contract('Peter', (accounts) => {
 
   it('TestAddBet', async () => {
     await token.addBet("Peter", 0, 100, 1800000000, 456, ["haha", "isme", "asdf"],{from: accounts[0]});
+    await token.addBet("Expired", 0, 100, 18, 456, ["haha", "isme", "asdf"],{from: accounts[0]});
     await token.addBet("Howard", 0, 200, 1800000000, 456, [],{from: accounts[0]});
 
     const title_0 = await token.getTitle.call(0);
-    const title_1 = await token.getTitle.call(1);
+    const title_1 = await token.getTitle.call(2);
     const upper_0 = await token.getUpperBound.call(0);
-    const upper_1 = await token.getUpperBound.call(1);
+    const upper_1 = await token.getUpperBound.call(2);
     const lower_0 = await token.getLowerBound.call(0);
-    const lower_1 = await token.getLowerBound.call(1);
+    const lower_1 = await token.getLowerBound.call(2);
     const current_0 = await token.getCurrentAmount.call(0);
-    const current_1 = await token.getCurrentAmount.call(1);
-    const nowTime = await token.getTime.call();
+    const current_1 = await token.getCurrentAmount.call(2);
+    const bet = await token.getLastBet.call();
 
-    console.log(nowTime.toNumber());
+    console.log(bet);
     
     assert.strictEqual(title_0, "Peter");
     assert.strictEqual(title_1, "Howard");
@@ -57,10 +58,14 @@ contract('Peter', (accounts) => {
     const num0 = await token.getChoiceNum.call(0);
     const choice0 = await token.getChoice.call(0, 0);
     const choice1 = await token.getChoice.call(0, 1);
+    var addr0 = await token.getAddressAmount.call(0, {from: accounts[0]});
+    var addr1 = await token.getAddressAmount.call(0, {from: accounts[1]});
 
     assert.strictEqual(num0.toNumber(), 2);
     assert.strictEqual(choice0, "asdf");
     assert.strictEqual(choice1, "zxcv");
+    assert.strictEqual(addr0[0].toNumber(), 0);
+    assert.strictEqual(addr1[0].toNumber(), 0);
 
     await token.addMoney(0, 0, 10, {from: accounts[0], value: web3.utils.toWei("0.01")});
     await token.addMoney(0, 0, 20, {from: accounts[1], value: web3.utils.toWei("0.02")});
@@ -68,8 +73,8 @@ contract('Peter', (accounts) => {
     current_0 = await token.getCurrentAmount.call(0);
     current_1 = await token.getCurrentAmount.call(1);
     var asdf = await token.getChoicesAmount.call(0);
-    var addr0 = await token.getAddressAmount.call(0, {from: accounts[0]});
-    var addr1 = await token.getAddressAmount.call(0, {from: accounts[1]});
+    addr0 = await token.getAddressAmount.call(0, {from: accounts[0]});
+    addr1 = await token.getAddressAmount.call(0, {from: accounts[1]});
 
     assert.strictEqual(current_0.toNumber(), 30);
     assert.strictEqual(current_1.toNumber(), 0);
