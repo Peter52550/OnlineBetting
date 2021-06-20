@@ -149,7 +149,7 @@ contract OnlineBetting {
         Bet[] memory validBets = getBets();
         Bet[] memory hotBets = new Bet[](10);
         _sortBets(validBets);
-        for(uint i = 0; i < 10; ++i) {
+        for(uint i = 0; i < _max(10, validBets.length); ++i) {
             hotBets[i] = validBets[i];
         }
         return hotBets;
@@ -291,5 +291,10 @@ contract OnlineBetting {
             _quickSort(_bets, _init, j);
         if (i < _end)
             _quickSort(_bets, i, _end);
+    }
+
+    function _max(uint a, uint b) internal pure returns(uint) {
+        if(a > b) return a;
+        else return b;
     }
 }
