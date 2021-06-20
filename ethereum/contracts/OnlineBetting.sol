@@ -15,7 +15,7 @@ contract OnlineBetting {
 
     //Enums
     enum Region{ Other, Taiwan, China, USA, Europe }
-    enum Genre{ Other, News, olitics, Sports }
+    enum Genre{ Other, News, Politics, Sports }
 
     //Bet
     struct Bet {
@@ -31,6 +31,8 @@ contract OnlineBetting {
         uint[] currentChoices;
         address[] voter;
         bool isAnswerSet;
+        Region region;
+        Genre genre;
     }
 
     //Bet list
@@ -52,7 +54,16 @@ contract OnlineBetting {
 
     //functions
     //Add bet to bets
-    function addBet(string memory _title, uint _lowerBound, uint _upperBound, uint _publishTime, uint _lastBetTime, string[] memory _choices) public {
+    function addBet(
+        string memory _title, 
+        uint _lowerBound, 
+        uint _upperBound, 
+        uint _publishTime, 
+        uint _lastBetTime, 
+        string[] memory _choices, 
+        string memory _region, 
+        string memory _genre
+    ) public {
         uint betId = bets.length;
         uint choiceLength = _choices.length;
         uint[] memory currentChoices = new uint[](choiceLength);
@@ -65,6 +76,8 @@ contract OnlineBetting {
         bet.lastBetTime = _lastBetTime;
         bet.choices = _choices;
         bet.currentChoices = currentChoices;
+        bet.region = _str2Region(_region);
+        bet.genre = _str2Genre(_genre);
         emit BetAdded(betId, _title);
     }
 
@@ -130,6 +143,16 @@ contract OnlineBetting {
             validBets[i] = bets[ids[i]];
         }
         return validBets;
+    }
+
+    function getHotBets() public view returns(Bet[] memory) {
+        Bet[] memory validBets = getBets();
+        Bet[] memory hotBets = new Bet[](10);
+        _sortBets(validBets);
+        for(uint i = 0; i < 10; ++i) {
+            hotBets[i] = validBets[i];
+        }
+        return hotBets;
     }
 
 
@@ -233,11 +256,40 @@ contract OnlineBetting {
 
     function _str2Region(string memory _region) internal pure returns(Region) {
         if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Taiwan"))) return Region.Taiwan;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("China"))) return Region.China;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("USA"))) return Region.Taiwan;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Europe"))) return Region.Europe;
         else return Region.Other;
     }
 
     function _str2Genre(string memory _genre) internal pure returns(Genre) {
         if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("News"))) return Genre.News;
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Sports"))) return Genre.Sports;
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Politics"))) return Genre.Politics;
         return Genre.Other;
+    }
+
+    function _sortBets(Bet[] memory _bets) internal pure {
+        _quickSort(_bets, 0, _bets.length-1);
+    }
+
+    function _quickSort(Bet[] memory _bets, uint _init, uint _end) internal pure {
+        uint i = _init;
+        uint j = _end;
+        if(i == j) return;
+        Bet memory pivot = _bets[(_init + (_end - _init) / 2)];
+        while (i <= j) {
+            while (_bets[i].currentAmount < pivot.currentAmount) i++;
+            while (pivot.currentAmount < _bets[j].currentAmount) j--;
+            if (i <= j) {
+                (_bets[uint(i)], _bets[uint(j)]) = (_bets[uint(j)], _bets[uint(i)]);
+                i++;
+                j--;
+            }
+        }
+        if (_init < j)
+            _quickSort(_bets, _init, j);
+        if (i < _end)
+            _quickSort(_bets, i, _end);
     }
 }
