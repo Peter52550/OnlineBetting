@@ -3,22 +3,71 @@
   padding-top: 8px;
 }
 .title {
+  font-size: 28px;
+  font-weight: 700;
+}
+.miconWrapper {
+  display: flex;
+  padding: 4px;
+  width: 15%;
+}
+.micon {
+  font-size: 36px;
+  color: "#B10DC9";
+}
+.micon_word {
   font-size: 18px;
-  font-weight: 400;
+  color: #808080;
+  padding-left: 4px;
+}
+.iconWrapper {
+  display: flex;
+  padding: 16px;
+}
+.icon {
+  font-size: 48px;
+  padding-right: 16px;
+  margin-top: -4px;
+}
+.icon_word {
+  font-size: 24px;
+  font-weight: 500;
+}
+.paper {
+  margin-left: 200px;
+  padding-bottom: 48px;
+  box-shadow: rgb(0 0 0 / 12%) 0px 6px 16px;
+  border-radius: 12px;
+  border: 1px solid rgb(221, 221, 221);
+  width: 700px;
+}
+.paperTitle {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 16px 0 -16px 32px;
 }
 .arrow {
   margin-top: 20px;
   margin-right: 20px;
+  cursor: pointer;
 }
 .text {
   font-size: 23px;
   font-weight: 400;
   padding-top: 15px;
   padding-bottom: 16px;
+  cursor: pointer;
 }
 .input {
   width: 100%;
-  margin-top: 3px;
+  margin-left: 16px;
+  border-bottom: 1px solid black;
+}
+.comment {
+  margin-left: 20px;
+  font-size: 20px;
+  margin-top: 6px;
+  color: #cec6c6;
 }
 .vertical_spacing {
   margin-top: 15px;
@@ -26,9 +75,25 @@
   margin-left: 38%;
 }
 .bidbutton {
-  margin-left: 45%;
-  margin-top: 20px;
+  margin-left: 3%;
+  margin-top: 3px;
   height: 40px;
   font-size: 20px;
+  border-radius: 20px;
   /* width: 40px; */
+}
+
+.messageWrapper {
+  display: flex;
+  padding: 8px;
+  width: 500px;
+  border: 1px dashed #808080;
+  margin: 16px;
+}
+
+.message {
+  max-width: 300px;
+  word-wrap: break-word;
+  display: flex;
+  padding: 4px;
 }

@@ -5,13 +5,31 @@
   border: 3px solid #9c9fa1;
   border-radius: 2px;
 }
-
+.flex {
+  display: flex;
+  width: fit-content;
+  margin-left: 16px;
+  margin-top: -12px;
+  border-radius: 15px;
+  /* border: 1px solid #808080; */
+  color: rgb(102, 169, 223);
+  font-size: 14px;
+  align-items: center;
+}
+.icon {
+  /* padding: 4px 4px 4px 8px; */
+}
+.icon_word {
+  /* padding: 0px 0px 0px 4px; */
+  margin-left: 4px;
+}
 .card_account {
   font-size: 15px;
 }
 .title {
   color: #858585;
-  font-size: 35px;
+  font-size: 28px;
+  margin-top: -16px;
 }
 
 .gray {

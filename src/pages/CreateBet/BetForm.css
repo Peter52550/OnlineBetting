@@ -1,0 +1,15 @@
+/* .container .ant-row .ant-col + .ant-col {
+  width: 20%;
+  background-color: "black";
+  color: "red";
+} */
+
+.date-wrapper .ant-picker-large .ant-picker-input > input {
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid white;
+  border-radius: 10px;
+  height: 60px;
+  width: 300px;
+  margin-left: -10px;
+  padding-left: 10px;
+}

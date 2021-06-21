@@ -1,0 +1,18 @@
+.root {
+  width: 100%;
+}
+.cardWrapper {
+  margin: 0 auto;
+  position: absolute;
+  font-size: 20px;
+  top: 40%;
+  left: 20%;
+  transform: translateY(-50%);
+}
+.buttonWrapper {
+  margin: 0 auto;
+  position: absolute;
+  top: 65%;
+  left: 45%;
+  transform: translateY(-50%);
+}

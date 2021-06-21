@@ -1,16 +1,17 @@
 import React, { useState } from "react";
+import moment from "moment";
+
 // router
 import { useHistory } from "react-router-dom";
+
 // css
 import styles from "./index.module.css";
+
+// components
+import BetInfo from "./BetInfo";
 import { Modal, Row, Alert } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-// import AntDialog from "../../components/modal"
-// components
-// import Title from "./Title";
-import moment from "moment";
-import BetInfo from "./BetInfo";
-// import MobilepayList from "./MobilepayList";
+
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
 const ReachableContext = React.createContext();
 export default function CreateBetPage({
@@ -28,6 +29,8 @@ export default function CreateBetPage({
       formUpperBound: formUpperBound,
       formPublishTime: formPublishTime,
       formLastBetTime: formLastBetTime,
+      formArea: formArea,
+      formCategory: formCategory,
       formBetType: formBetType,
       formBetOptions: formBetOptions.filter((option) => option !== ""),
     });
@@ -38,8 +41,11 @@ export default function CreateBetPage({
   const [formUpperBound, setFormUpperBound] = useState();
   const [formPublishTime, setFormPublishTime] = useState(publishTime);
   const [formLastBetTime, setFormLastBetTime] = useState(lastBetTime);
+  const [formArea, setFormArea] = useState("");
+  const [formCategory, setFormCategory] = useState("");
   const [formBetType, setFormBetType] = useState("");
-  const [formBetOptions, setFormBetOptions] = useState([""]);
+  const [formBetOptions, setFormBetOptions] = useState(["", ""]);
+
   const [allSet, setAllSet] = useState(true);
   const handleTitleNameChange = (e) => setFormTitleName(e.target.value);
   const handleLowerBoundChange = (val) => setFormLowerBound(val);
@@ -54,7 +60,20 @@ export default function CreateBetPage({
       parseInt(moment(lastBetTimeString, dateFormat).format("x"))
     );
   };
-  const handleBetTypeChange = (e) => setFormBetType(e.target.value);
+  const handleAreaChange = (val) => {
+    setFormArea(val);
+  };
+  const handleCategoryChange = (val) => {
+    setFormCategory(val);
+  };
+  const handleBetTypeChange = (e) => {
+    if (e === "是非") {
+      setFormBetType("trueFalse");
+      if (formBetOptions.length > 2) {
+        setFormBetOptions(formBetOptions.slice(0, -1));
+      }
+    } else setFormBetType("multipleChoice");
+  };
   const handleBetOptionsChange = (e, i) => {
     let newOptions = [...formBetOptions];
     newOptions[i] = e.target.value;
@@ -75,6 +94,8 @@ export default function CreateBetPage({
       formUpperBound &&
       formPublishTime &&
       formLastBetTime &&
+      formArea &&
+      formCategory &&
       formBetType &&
       formBetOptions
     ) {
@@ -95,7 +116,7 @@ export default function CreateBetPage({
     }
   };
   return (
-    <div style={{ backgroundColor: "#fdfdfd" }}>
+    <div className={styles.container}>
       {!allSet ? (
         <Alert message="你有些東西沒填喔" type="error" showIcon />
       ) : (
@@ -107,6 +128,8 @@ export default function CreateBetPage({
         formUpperBoundBound={formUpperBound}
         formPublishTime={formPublishTime}
         formLastBetTime={formLastBetTime}
+        formArea={formArea}
+        formCategory={formCategory}
         formBetType={formBetType}
         formBetOptions={formBetOptions}
         handleTitleNameChange={handleTitleNameChange}
@@ -114,15 +137,20 @@ export default function CreateBetPage({
         handleUpperBoundChange={handleUpperBoundChange}
         handlePublishTimeChange={handlePublishTimeChange}
         handleLastBetTimeChange={handleLastBetTimeChange}
+        handleAreaChange={handleAreaChange}
+        handleCategoryChange={handleCategoryChange}
         handleBetTypeChange={handleBetTypeChange}
         handleBetOptionsChange={handleBetOptionsChange}
         addClick={addClick}
         removeClick={removeClick}
       />
-      <Row className={styles.blank} />
-      <button className={styles.trackBtn} onClick={handleConfirm}>
+      <button className={styles.btnThree} onClick={handleConfirm}>
         <div>發布賭局</div>
       </button>
+      <button className={styles.btnThree} onClick={() => history.goBack()}>
+        <div>返回</div>
+      </button>
+      <Row className={styles.blank} />
     </div>
   );
 }

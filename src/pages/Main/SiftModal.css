@@ -1,0 +1,69 @@
+.sift-modal {
+  padding: 28px;
+}
+
+.sift-modal .title {
+  color: #0058a3 !important;
+  font-weight: 500;
+  /* border-top: 1px solid #0058a3; */
+  /* padding-top: 12px; */
+  font-size: 24px;
+  padding-left: 8px;
+  padding-top: 8px;
+}
+
+.sift-modal .close-icon {
+  color: #e76b71;
+  font-size: 16px;
+  /* padding-top: 34px; */
+}
+
+.sift-modal .ant-modal-content {
+  border-radius: 12px;
+}
+
+.sift-modal .ant-modal-body {
+  padding: 16px;
+  width: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.sift-modal .ant-slider {
+  align-items: center;
+  margin-left: 32px;
+  padding: 24px 0px;
+}
+.sift-modal .flex {
+  display: flex;
+  justify-content: space-around;
+}
+
+.sift-modal .box {
+  border: 1px solid black;
+  border-radius: 12px;
+  margin: 4px 4px 4px 4px;
+  padding: 4px 8px;
+  width: 200px;
+}
+.sift-modal .number {
+  align-items: center;
+  display: flex;
+}
+.sift-modal .ant-input.ant-input-borderless {
+  margin: 0px 4px;
+  font-size: 16px;
+  padding: 0px;
+  width: 100px;
+}
+.sift-modal .ant-input.ant-input-lg.ant-input-borderless {
+  margin: 8px;
+  margin-left: 16px;
+  width: 100%;
+  border-bottom: 1px solid #808080;
+}
+
+.sift-modal .ant-modal-footer {
+  position: sticky;
+  bottom: 0;
+}

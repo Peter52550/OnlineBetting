@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
+
 // router
 import { useHistory } from "react-router-dom";
+
 // css
 import styles from "./index.module.css";
+
 // components
-import { Button, Layout, Menu, Breadcrumb } from "antd";
+import CardMembershipIcon from "@material-ui/icons/CardMembership";
+import Carousel from "../../components/Carousel/Carousel";
+import CardList from "./CardList";
+import SiftModal from "./SiftModal";
+import PieChart from "./PieChart";
+import BarChart from "./BarChart";
+import { Button, Layout, Menu, Tooltip } from "antd";
 import {
   PoweroffOutlined,
   UserOutlined,
@@ -12,63 +21,86 @@ import {
   NotificationOutlined,
 } from "@ant-design/icons";
 
-import CardList from "./CardList";
-import DemoLine from "./DemoLine";
-import DashCards from "../../components/DashCards";
-import paths from "../../router/path";
+// config
+import { memberships } from "../../config";
 
-const { SubMenu } = Menu;
-const { Header, Content, Sider } = Layout;
+// icons
+import money from "../../icons/money.svg";
+import person from "../../icons/person.svg";
 
-const publicCards = [
-  {
-    user_id: "ahf8we7fojewo",
-    bet_id: "77777",
-    title: "我明天會交女朋友嗎",
-    lowerbound: 10,
-    token: [20, 3],
-    upperbound: 100,
-    publishTime: "2021-05-30 00:56:30",
-    lastBetTime: "2021-05-30 00:56:30",
-    betType: "trueFalse",
-    options: ["會", "不會"],
-  },
-  {
-    user_id: "shfi69wefo0021",
-    bet_id: "88888",
-    title: "什麼時候可以出去玩啊QQ",
-    lowerbound: 0,
-    token: [60, 20, 2],
-    upperbound: 100,
-    publishTime: "2021-05-30 00:56:30",
-    lastBetTime: "2021-05-30 00:56:30",
-    betType: "multipleChoice",
-    options: ["等一下", "你沒有妹妹", "再等一百年"],
-  },
-];
 export default function MainPage({
   cardAllBettings,
   cardOwnBettings,
-  cardAllBets,
+  ownInfo,
 }) {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
-  const [currentBet, setCurrentBet] = useState({});
+  const [currentBets, setCurrentBets] = useState([]);
+  const [mode, setMode] = useState("");
+  // modal
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [lower, setLower] = useState([0, 1000000]);
+  const [upper, setUpper] = useState([0, 1000000]);
+  const [title, setTitle] = useState("");
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+  const handleLowerValueChange = (val) => {
+    setLower(val);
+  };
+  const handleUpperValueChange = (val) => {
+    setUpper(val);
+  };
+  const handleTitleChange = (val) => {
+    setTitle(val);
+  };
+  const inRange = (x, min, max) => (x - min) * (x - max) <= 0;
 
+  const handleSearch = () => {
+    setIsModalVisible(false);
+    if (currentBets.length > 0) {
+      setCurrentBets(
+        currentBets.filter((bet) =>
+          inRange(bet.lowerbound, lower[0], lower[1]) &&
+          inRange(bet.upperbound, upper[0], upper[1]) &&
+          title === ""
+            ? true
+            : bet.title.includes(handleMenuClick)
+        )
+      );
+    }
+    setMode("search");
+  };
   const enterLoading = (url) => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       history.push(`/home/${url}`);
     }, 400);
+    setMode("");
   };
 
-  const handleMenuClick = (key, subMenuType) => {
+  console.log(ownInfo);
+  const handleMenuClick = (subMenuType, key) => {
+    setMode("click");
     subMenuType === "main"
-      ? setCurrentBet({})
-      : setCurrentBet(cardAllBets[subMenuType][key - 1]);
+      ? setCurrentBets([])
+      : setCurrentBets(
+          cardAllBettings.filter(
+            (bet) =>
+              bet.area === subMenuType.replace(/\s/g, "") ||
+              bet.category === subMenuType.replace(/\s/g, "")
+          )
+        );
   };
-  // console.log(currentBet);
+  const backToMain = () => {
+    setMode("");
+    setCurrentBets([]);
+  };
+  console.log(currentBets);
   return (
     <div style={{ backgroundColor: "#fdfdfd" }}>
       {/*<div
@@ -80,207 +112,235 @@ export default function MainPage({
       >
         <DemoLine />
       </div>*/}
-      <Layout>
-        <Header className="header">
-          <div className="logo" />
-          <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]}>
-            <Menu.Item key="1">Market</Menu.Item>
-            <Menu.Item key="2">Account</Menu.Item>
-          </Menu>
-        </Header>
-        <Layout>
-          <Sider width={200} className="site-layout-background">
-            <Menu
-              mode="inline"
-              // defaultSelectedKeys={["1"]}
-              // defaultOpenKeys={["sub1"]}
-              style={{
-                height: "200%",
-                borderRight: 0,
-                backgroundColor: "#800080",
-                color: "#FFFFFF",
-              }}
-              // onClick={(e) => console.log(e.keyPath)}
-            >
-              <Menu.Item key="1" onClick={() => handleMenuClick(1, "main")}>
-                首頁
-              </Menu.Item>
 
-              <SubMenu key="news" icon={<UserOutlined />} title="news">
-                <Menu.Item
-                  key="1"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  寶島
-                </Menu.Item>
-                <Menu.Item
-                  key="2"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  支那
-                </Menu.Item>
-                <Menu.Item
-                  key="3"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  美國
-                </Menu.Item>
-                <Menu.Item
-                  key="4"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  歐洲
-                </Menu.Item>
-              </SubMenu>
-              <SubMenu
-                key="politics"
-                icon={<LaptopOutlined />}
-                title="politics"
-              >
-                <Menu.Item
-                  key="1"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  寶島
-                </Menu.Item>
-                <Menu.Item
-                  key="2"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  支那
-                </Menu.Item>
-                <Menu.Item
-                  key="3"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  美國
-                </Menu.Item>
-                <Menu.Item
-                  key="4"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  歐洲
-                </Menu.Item>
-              </SubMenu>
-              <SubMenu
-                key="sports"
-                icon={<NotificationOutlined />}
-                title="sports"
-              >
-                <Menu.Item
-                  key="1"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  籃球
-                </Menu.Item>
-                <Menu.Item
-                  key="2"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  棒球
-                </Menu.Item>
-                <Menu.Item
-                  key="3"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  保齡球
-                </Menu.Item>
-                <Menu.Item
-                  key="4"
-                  onClick={({ keyPath: [key, value] }) =>
-                    handleMenuClick(key, value)
-                  }
-                >
-                  獄囚
-                </Menu.Item>
-              </SubMenu>
-            </Menu>
-          </Sider>
-          <Layout
-            style={{ padding: "0 24px 24px", backgroundColor: "#FFFFFF" }}
+      <div className={styles.top_holder} onClick={backToMain}>
+        <Button className={styles.top_icon}>
+          <img
+            src={money}
+            alt="icon"
+            style={{ width: 44, marginTop: "-4px" }}
+          />
+          <div className={styles.top_icon_word}>Money</div>
+        </Button>
+        <div style={{ alignItems: "center", display: "flex" }}>
+          <Button
+            className={styles.button}
+            icon={<PoweroffOutlined />}
+            loading={loading}
+            onClick={() => enterLoading("createbet")}
           >
-            {/*<Breadcrumb style={{ margin: "16px 0" }}>
-              <Breadcrumb.Item>Home</Breadcrumb.Item>
-              <Breadcrumb.Item>List</Breadcrumb.Item>
-              <Breadcrumb.Item>App</Breadcrumb.Item>
-    </Breadcrumb>*/}
-            <Content
-              className="site-layout-background"
+            發布賭局
+          </Button>
+          <Button
+            className={styles.button}
+            icon={<PoweroffOutlined />}
+            loading={loading}
+            onClick={() => enterLoading("wheel")}
+          >
+            進入轉盤
+          </Button>
+
+          {ownInfo.member === "none" ? (
+            <div style={{ paddingTop: 0 }}>
+              <Tooltip
+                title="加入會員"
+                color={"volcano"}
+                key={"volcano"}
+                zIndex={200}
+                placement="top"
+                className={styles.memIcon}
+              >
+                <CardMembershipIcon
+                  style={{ fontSize: 37 }}
+                  className={styles.member}
+                  onClick={() => history.push("./home/member")}
+                />
+              </Tooltip>
+            </div>
+          ) : (
+            ""
+          )}
+          <Tooltip
+            title="查看帳戶"
+            color={"volcano"}
+            key={"volcano"}
+            zIndex={200}
+            placement="top"
+            className={styles.copper}
+          >
+            <img
+              src={person}
+              alt="person"
+              className={styles.person}
+              onClick={() => history.push("./home/account")}
+            />
+          </Tooltip>
+
+          <Tooltip
+            title={memberships[ownInfo.member].tooltip}
+            color={"volcano"}
+            key={"volcano"}
+            zIndex={200}
+            placement="top"
+            className={styles.copper}
+          >
+            <img
+              src={memberships[ownInfo.member].src}
+              alt="copper"
               style={{
-                padding: 24,
-                margin: 0,
-                minHeight: 280,
+                paddingBottom: 0,
+                width: 44,
+                height: 44,
+                marginTop: "-5px",
               }}
-            >
-              {Object.keys(currentBet).length === 0 &&
-              currentBet.constructor === Object ? (
+            />
+          </Tooltip>
+        </div>
+      </div>
+      <div style={{ display: "flex", paddingTop: 30 }}>
+        <div className={styles.pie}>
+          <PieChart />
+        </div>
+        <div className={styles.bar}>
+          <BarChart />
+        </div>
+      </div>
+      <div className={styles.nav_header}>
+        <div className={styles.nav_holder}>
+          <div style={{ borderRight: "1px solid #808080" }}>
+            <Button className={styles.nav} onClick={showModal}>
+              篩選條件
+            </Button>
+          </div>
+          <Carousel
+            backToMain={backToMain}
+            handleMenuClick={handleMenuClick}
+            cardAllBettings={cardAllBettings}
+            cardOwnBettings={cardOwnBettings}
+          />
+        </div>
+      </div>
+
+      {currentBets.length === 0 && mode === "" ? (
+        <>
+          <div style={{ display: "flex" }}>
+            <div className={styles.title}>您所創建的賭局</div>
+          </div>
+          {cardOwnBettings.length === 0 ? (
+            <div className={styles.text}>您尚未創建賭局喔</div>
+          ) : (
+            <CardList cards={cardOwnBettings} />
+          )}
+          <br />
+          <div className={styles.title}>熱門Top5</div>
+          <CardList cards={cardAllBettings} />
+          <SiftModal
+            isModalVisible={isModalVisible}
+            handleCancel={handleCancel}
+            handleLowerValueChange={handleLowerValueChange}
+            lower={lower}
+            handleUpperValueChange={handleUpperValueChange}
+            upper={upper}
+            handleTitleChange={handleTitleChange}
+            title={title}
+            handleSearch={handleSearch}
+          />
+          <br />
+          <br />
+          <br />
+        </>
+      ) : (
+        <>
+          {/*<DashCards cards={currentBets} />*/}
+          {currentBets.length === 0 ? (
+            <div className={styles.result}>
+              {mode === "" ? "你要的好像沒結果誒..." : "目前沒有相關結果..."}
+            </div>
+          ) : (
+            <div>
+              {currentBets.filter(({ status }) => status === 0).length > 0 ? (
                 <>
-                  <div style={{ display: "flex" }}>
-                    <div className={styles.title}>您所創建的賭局</div>
-                    <div
-                      style={{ display: "flex", marginLeft: 400, width: 500 }}
-                    >
-                      <Button
-                        type="primary"
-                        className={styles.button}
-                        style={{ marginRight: 20 }}
-                        icon={<PoweroffOutlined />}
-                        loading={loading}
-                        onClick={() => enterLoading("wheel")}
-                      >
-                        進入轉盤
-                      </Button>
-                      <Button
-                        type="primary"
-                        className={styles.button}
-                        // style={{ marginLeft: "-100px" }}
-                        icon={<PoweroffOutlined />}
-                        loading={loading}
-                        onClick={() => enterLoading("createbet")}
-                      >
-                        發布賭局
-                      </Button>
-                    </div>
-                  </div>
-                  {cardOwnBettings.length === 0 ? (
-                    <div className={styles.text}>您尚未創建賭局喔</div>
-                  ) : (
-                    <CardList cards={cardOwnBettings} />
-                  )}
-                  <br />
-                  <div className={styles.title}>熱門賭局</div>
-                  <CardList cards={cardAllBettings} />
+                  <div className={styles.title}>您所創建的賭局</div>
+                  <CardList
+                    cards={currentBets.filter(({ status }) => status === 0)}
+                  />{" "}
                 </>
               ) : (
-                <DashCards cards={currentBet.bets} />
+                ""
               )}
-            </Content>
-          </Layout>
-        </Layout>
-      </Layout>
-      ,
+              {currentBets.filter(({ status }) => status === 0).length > 0 ? (
+                <>
+                  <div className={styles.title}>熱門Top5</div>
+                  <CardList
+                    cards={currentBets.filter(({ status }) => status === 0)}
+                  />
+                </>
+              ) : (
+                ""
+              )}
+            </div>
+          )}
+          <br />
+
+          <SiftModal
+            isModalVisible={isModalVisible}
+            handleCancel={handleCancel}
+            handleLowerValueChange={handleLowerValueChange}
+            lower={lower}
+            handleUpperValueChange={handleUpperValueChange}
+            upper={upper}
+            handleTitleChange={handleTitleChange}
+            title={title}
+            handleSearch={handleSearch}
+          />
+          <br />
+          <br />
+          <br />
+        </>
+      )}
     </div>
   );
+}
+{
+  /*<Button className={styles.nav}>
+            <div onClick={backToMain}>全部</div>
+            </Button>*/
+}
+
+{
+  /*<Button className={styles.nav}>
+            <div onClick={(e) => handleMenuClick(e.target.outerText, 1)}>
+              寶島
+            </div>
+          </Button>
+          <Button className={styles.nav}>
+            <div onClick={(e) => handleMenuClick(e.target.outerText, 1)}>
+              支那
+            </div>
+          </Button>
+          <Button className={styles.nav}>
+            <div onClick={(e) => handleMenuClick(e.target.outerText, 1)}>
+              美國
+            </div>
+          </Button>
+          <Button className={styles.nav}>
+            <div onClick={(e) => handleMenuClick(e.target.outerText, 1)}>
+              歐洲
+            </div>
+          </Button>
+          <Button className={styles.nav}>
+            <div onClick={(e) => handleMenuClick(e.target.outerText, 1)}>
+              news
+            </div>
+          </Button>
+          <Button className={styles.nav}>
+            <div onClick={(e) => handleMenuClick(e.target.outerText, 1)}>
+              politics
+            </div>
+          </Button>
+          <Button className={styles.nav}>
+            <div onClick={(e) => handleMenuClick(e.target.outerText, 1)}>
+              sports
+            </div>
+            </Button>*/
 }
