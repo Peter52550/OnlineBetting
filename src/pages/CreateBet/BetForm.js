@@ -1,32 +1,30 @@
 import React, { useState, useEffect } from "react";
 import moment from "moment";
-import clsx from "clsx";
-import { PlusCircleTwoTone, MinusCircleTwoTone } from "@ant-design/icons";
+
 // css
 import styles from "./BetForm.module.css";
+import "./BetForm.css";
+
 // components
 import {
-  Input,
-  InputNumber,
-  DatePicker,
-  TimePicker,
-  Row,
-  Col,
-  Image,
-  Space,
-  Radio,
-} from "antd";
+  PlusCircleTwoTone,
+  MinusCircleTwoTone,
+  PlusCircleOutlined,
+  MinusCircleOutlined,
+} from "@ant-design/icons";
+import { Input, InputNumber, DatePicker, Row, Col } from "antd";
+import DropdownMenu from "./Dropdown";
 
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
 function disabledDate(current) {
   // Can not select days before today and today
-  return current && current < moment().endOf("day");
+  // return current && current < moment().endOf("day");
 }
 function disabledDateTime() {
   return {
     disabledHours: () => range(0, 24).splice(4, 20),
-    disabledMinutes: () => range(30, 60),
-    disabledSeconds: () => [55, 56],
+    // disabledMinutes: () => range(30, 60),
+    // disabledSeconds: () => [55, 56],
   };
 }
 function range(start, end) {
@@ -45,6 +43,8 @@ export default function BetForm({
   formUpperBound,
   formPublishTime,
   formLastBetTime,
+  formArea,
+  formCategory,
   formBetType,
   formBetOptions,
   handleTitleNameChange,
@@ -52,6 +52,8 @@ export default function BetForm({
   handleUpperBoundChange,
   handlePublishTimeChange,
   handleLastBetTimeChange,
+  handleAreaChange,
+  handleCategoryChange,
   handleBetTypeChange,
   handleBetOptionsChange,
   amountDisable = false,
@@ -59,18 +61,23 @@ export default function BetForm({
   addClick,
   removeClick,
 }) {
-  // handle form
-  // TODO: Error display
+  const leftSpan = 6;
+  const rightSpan = 10;
+
+  const [click1, setClick1] = useState(false);
+  const [click2, setClick2] = useState(false);
   return (
     <div className={styles.container}>
+      <div className={styles.title}>賭局資訊</div>
       <Row className={styles.vertical_spacing}>
-        <Col span={4} className={styles.blue}>
+        {/*<Col span={leftSpan} className={styles.blue}>
           賭局標題{" "}
-        </Col>
-        <Col span={10}>
+  </Col>*/}
+        <Col span={rightSpan}>
           <Input
             className={styles.input}
-            placeholder="請輸入標題"
+            bordered={false}
+            placeholder="請輸入賭局標題"
             size="large"
             value={formTitleName}
             disabled={titleNameDisable}
@@ -79,14 +86,16 @@ export default function BetForm({
         </Col>
       </Row>
       <Row className={styles.vertical_spacing}>
-        <Col span={4} className={styles.blue}>
+        {/*<Col span={leftSpan} className={styles.blue}>
           下賭最小額度{" "}
-        </Col>
-        <Col span={10}>
+</Col>*/}
+        <Col span={rightSpan}>
           <InputNumber
             className={styles.input}
+            style={{ paddingTop: 10 }}
+            bordered={false}
             size="large"
-            placeholder="請輸入下賭金額"
+            placeholder="請輸入每人下賭最小額度"
             min={0}
             value={formLowerBound}
             disabled={amountDisable}
@@ -95,14 +104,16 @@ export default function BetForm({
         </Col>
       </Row>
       <Row className={styles.vertical_spacing}>
-        <Col span={4} className={styles.blue}>
+        {/*<Col span={leftSpan} className={styles.blue}>
           下賭上限{" "}
-        </Col>
-        <Col span={10}>
+</Col>*/}
+        <Col span={rightSpan}>
           <InputNumber
             className={styles.input}
+            style={{ paddingTop: 10 }}
+            bordered={false}
             size="large"
-            placeholder="請輸入上限金額"
+            placeholder="您想要這盤賭到最高多少"
             min={0}
             value={formUpperBound}
             disabled={amountDisable}
@@ -110,33 +121,22 @@ export default function BetForm({
           />
         </Col>
       </Row>
+
       <Row className={styles.vertical_spacing}>
-        <Col span={4} className={styles.blue}>
-          結果公開時間{" "}
-        </Col>
-        <Col span={10}>
-          <DatePicker
-            className={styles.input}
-            size="large"
-            format={dateFormat}
-            value={moment(formPublishTime)}
-            onChange={handlePublishTimeChange}
-            disabledDate={disabledDate}
-            disabledTime={disabledDateTime}
-            showTime={{ defaultValue: moment("00:00:00", "HH:mm:ss") }}
-          />
-        </Col>
-      </Row>
-      <Row className={styles.vertical_spacing}>
-        <Col span={4} className={styles.blue}>
+        {/*<Col span={leftSpan} className={styles.blue}>
           最後下注時間{" "}
-        </Col>
-        <Col span={10}>
+</Col>*/}
+        <Col span={rightSpan} className="date-wrapper">
           <DatePicker
-            className={styles.input}
+            suffixIcon
+            // className={styles.input}
+            style={{ width: "138%" }}
+            placeholder="請點選最後下注時間"
+            bordered={false}
             size="large"
             format={dateFormat}
-            value={moment(formLastBetTime)}
+            // value={moment(formLastBetTime)}
+            // value={placeholder ? placeholder : moment(formLastBetTime)}
             onChange={handleLastBetTimeChange}
             disabledDate={disabledDate}
             disabledTime={disabledDateTime}
@@ -145,10 +145,65 @@ export default function BetForm({
         </Col>
       </Row>
       <Row className={styles.vertical_spacing}>
-        <Col span={4} className={styles.blue}>
-          賭注類別{" "}
+        {/*<Col span={leftSpan} className={styles.blue}>
+          結果公開時間{" "}
+</Col>*/}
+        <Col span={rightSpan} className="date-wrapper">
+          <DatePicker
+            // className={styles.input}
+            style={{ width: "142%" }}
+            bordered={false}
+            placeholder="請點選結果公開時間"
+            size="large"
+            format={dateFormat}
+            // value={moment(formPublishTime)}
+            onChange={handlePublishTimeChange}
+            disabledDate={disabledDate}
+            disabledTime={disabledDateTime}
+            showTime={{ defaultValue: moment("00:00:00", "HH:mm:ss") }}
+          />
         </Col>
-        <Radio.Group
+      </Row>
+      <Row className={styles.vertical_spacing} style={{ width: 500 }}>
+        {/*<Col span={leftSpan} className={styles.blue}>
+          賭注類別{" "}
+</Col>*/}
+        <button
+          className={styles.glow}
+          style={{
+            marginRight: 20,
+            backgroundColor: click1 ? "rgb(0, 140, 255)" : "",
+          }}
+          onClick={(e) => {
+            handleBetTypeChange(e.target.outerText);
+            setClick1(true);
+            setClick2(false);
+          }}
+        >
+          是非
+        </button>
+        <button
+          className={styles.glow}
+          style={{ backgroundColor: click2 ? "rgb(0, 140, 255)" : "" }}
+          onClick={(e) => {
+            handleBetTypeChange(e.target.outerText);
+            setClick2(true);
+            setClick1(false);
+          }}
+        >
+          多選
+        </button>
+        <DropdownMenu
+          type="areas"
+          value={formArea}
+          handleClick={handleAreaChange}
+        />
+        <DropdownMenu
+          type="categories"
+          value={formCategory}
+          handleClick={handleCategoryChange}
+        />
+        {/*<Radio.Group
           className={styles.toggle}
           onChange={handleBetTypeChange}
           value={formBetType}
@@ -157,6 +212,7 @@ export default function BetForm({
             value={"trueFalse"}
             size="large"
             onChange={(e) => handleBetTypeChange(e)}
+            style={{ color: "white", fontSize: 14 }}
           >
             是非(兩個選項)
           </Radio>
@@ -164,47 +220,43 @@ export default function BetForm({
             value={"multipleChoice"}
             size="large"
             onChange={(e) => handleBetTypeChange(e)}
+            style={{ color: "white", fontSize: 14 }}
           >
             多重選項
           </Radio>
-        </Radio.Group>
+        </Radio.Group>*/}
       </Row>
-      <Row className={styles.vertical_spacing}>
-        <Col span={4} className={styles.blue}>
+      {/*<Row className={styles.vertical_spacing}>
+        <Col span={leftSpan} className={styles.blue}>
           賭注選項{" "}
         </Col>
-      </Row>
+      </Row>*/}
       {formBetOptions.map((option, i) => (
         <Row className={styles.vertical_spacing} key={`option_${i}`}>
-          {i == 0 ? (
-            <PlusCircleTwoTone
-              twoToneColor="#eb2f96"
+          {formBetType === "multipleChoice" && i === 1 ? (
+            <PlusCircleOutlined
+              // twoToneColor="#eb2f96"
+              // twoToneColor="white"
               onClick={addClick}
-              style={{
-                fontSize: "28px",
-                marginLeft: "-49px",
-                paddingRight: 20,
-                paddingTop: 3,
-              }}
+              className={styles.icon}
+            />
+          ) : formBetType === "multipleChoice" && i > 1 ? (
+            <MinusCircleOutlined
+              // twoToneColor="#eb2f96"
+              // twoToneColor="white"
+              onClick={() => removeClick(i)}
+              className={styles.icon}
             />
           ) : (
-            <MinusCircleTwoTone
-              twoToneColor="#eb2f96"
-              onClick={() => removeClick(i)}
-              style={{
-                fontSize: "28px",
-                marginLeft: "-49px",
-                paddingRight: 20,
-                paddingTop: 3,
-              }}
-            />
+            ""
           )}
-          <Col span={4} className={styles.blue}>
+          {/*<Col span={leftSpan} className={styles.blue}>
             選項一{" "}
-          </Col>
-          <Col span={10}>
+            </Col>*/}
+          <Col span={rightSpan}>
             <Input
               className={styles.input}
+              bordered={false}
               placeholder="請輸入選項"
               size="large"
               value={option}

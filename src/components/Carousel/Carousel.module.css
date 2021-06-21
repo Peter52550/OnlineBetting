@@ -1,0 +1,27 @@
+.nav {
+  border-radius: 20px;
+  margin: 8px;
+}
+.container {
+  width: 600px;
+  display: flex;
+  margin: 0 20px;
+  /* border: 1px solid #808080; */
+}
+.direction {
+  border: 1px solid #dbd7d7;
+  border-radius: 30px;
+  font-size: 20px;
+  padding: 7px 8px 4px 4px;
+  color: rgb(233, 175, 175);
+}
+.direction:hover {
+  cursor: pointer;
+}
+.overflow {
+  overflow-x: scroll;
+  max-width: 550px;
+  scroll-behavior: smooth;
+  display: flex;
+  margin-right: 10px;
+}

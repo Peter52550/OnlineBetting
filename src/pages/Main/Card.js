@@ -1,23 +1,31 @@
-import React, { useState } from "react";
+import React from "react";
 import clsx from "clsx";
+
 // router
 import { useHistory } from "react-router-dom";
+
 // css
 import styles from "./Card.module.css";
+import "./Card.css";
+
+//images
+import titan from "../../images/titan.jpeg";
+
 // components
+import { AimOutlined, CodeOutlined } from "@ant-design/icons";
+import { Card } from "antd";
+import { Typography, Progress } from "antd";
 
-import { Typography, Image, Space, Progress, Tooltip } from "antd";
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
-/**
- * Card contains Card name and Card Picture in CardTrackAccount
- */
-export default function Card({
+export default function Cards({
   bet_id,
   title,
   lowerbound,
   token,
   upperbound,
+  area,
+  category,
   handleClick,
 }) {
   const history = useHistory();
@@ -31,36 +39,44 @@ export default function Card({
     // });
     history.push(`/home/${bet_id}`);
   };
-  const total = token.reduce((acc, curValue) => acc + curValue, 0);
+  const total = token.reduce(
+    (acc, curValue) => Number(acc) + Number(curValue),
+    0
+  );
   const haveReward =
-    typeof upperbound === "number" && typeof total === "number";
+    typeof Number(upperbound) === "number" && typeof total === "number";
 
   const distance = ` $ ${
-    Math.round(Math.max(upperbound - total, 0) * 100) / 100
+    Math.round(Math.max(Number(upperbound) - total, 0) * 100) / 100
   }`;
   const accumulate = ` $ ${Math.round(total * 100) / 100}`;
-  const percentage = (total * 100) / (upperbound === 0 ? 1 : upperbound);
-  const max_acc = Math.max.apply(Math, token);
+  const percentage =
+    (total * 100) / (Number(upperbound) === 0 ? 1 : Number(upperbound));
+  const max_acc = Math.max.apply(Math, token) / Number(upperbound);
+
   return (
-    <div
-      className={styles.container}
-      // onClick={() => history.push(`/accountrecords/${card_id}`)}
+    <Card
+      hoverable
+      style={{ width: 240 }}
+      className="cover"
+      cover={<img alt="example" src={titan} />}
       onClick={handleCardClick}
     >
-      {/*<Image
-        className={styles.image}
-        src={image}
-        preview={{
-          visible: false,
-          maskClassName: clsx(styles.image, styles.image_mask),
-          mask: (
-            <Space direction="vertical" align="center">
-              {name}
-            </Space>
-          ),
-        }}
-    />*/}
-      <div className={styles.title}>{title}</div>
+      {/*<Meta
+      // title={title}
+      // description=""
+      // className="ant-card-meta-title"
+      // style={{ color: "#858585", fontSize: 35 }}
+      />*/}
+      <div style={{ display: "flex" }}>
+        <div className={styles.title}>{title}</div>
+        <div className={styles.flex}>
+          <AimOutlined className={styles.icon} />
+          <div className={styles.icon_word}>
+            {area} {category}
+          </div>
+        </div>
+      </div>
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <div>
           <Text className={clsx(styles.card_account, styles.gray)}>
@@ -88,12 +104,26 @@ export default function Card({
       <Progress
         percent={percentage}
         showInfo={false}
-        success={{ percent: Number(max_acc), strokeColor: "#e29871" }}
+        success={{ percent: Number(max_acc) * 100, strokeColor: "#e29871" }}
         // status="active"
         strokeColor="#0058A3"
         trailColor="#D2D7DC"
       />
-      <br />
-    </div>
+    </Card>
   );
 }
+
+// <div className={styles.container} onClick={handleCardClick}>
+//   {/*<Image
+//     className={styles.image}
+//     src={image}
+//     preview={{
+//       visible: false,
+//       maskClassName: clsx(styles.image, styles.image_mask),
+//       mask: (
+//         <Space direction="vertical" align="center">
+//           {name}
+//         </Space>
+//       ),
+//     }}
+// />*/}

@@ -1,3 +1,75 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import ReactTurntable from "react-turntable";
+import "react-turntable/assets/index.css";
+import styles from "./index.module.css";
+import { message, PageHeader } from "antd";
+import { useHistory } from "react-router-dom";
+
+const style = {
+  justifyContent: "center",
+  alignContent: "center",
+  display: "flex",
+  marginTop: "7%",
+};
+const prizes = [
+  "Durex",
+  "MI",
+  "Meizu",
+  "iphone 13",
+  "better luck next time",
+  "won 70",
+  "won 10",
+  "better luck next time",
+];
+
+const options = {
+  prizes,
+  width: 500,
+  height: 500,
+  primaryColor: "#83AF9B",
+  secondaryColor: "#C8C8A9",
+  fontStyle: {
+    color: "#fff",
+    size: "14px",
+    fontVertical: true,
+    fontWeight: "bold",
+    fontFamily: "Microsoft YaHei",
+  },
+  speed: 1000,
+  duration: 5000,
+  clickText: "Spin",
+  onStart() {
+    //If you want before the rotate do some...
+    console.log("start...");
+    //If you want stop rotate you can return false
+    return true;
+  },
+  onComplete(prize) {
+    console.log("prize:", prize);
+    message.info(`Congratulations!! You won ${prize}`);
+  },
+};
+export default function Wheel() {
+  const history = useHistory();
+  return (
+    <>
+      <PageHeader
+        className={styles.pageheader}
+        onBack={() => history.goBack()}
+        title={
+          <span className={styles.title} onClick={() => history.goBack()}>
+            回到主頁
+          </span>
+        }
+      />
+      <div style={style}>
+        <ReactTurntable {...options} />
+      </div>
+    </>
+  );
+}
+
 // import React, { useState } from "react";
 // import { Wheel } from "react-custom-roulette";
 // import Title from "./Title";
@@ -60,16 +132,18 @@
 
 //   return (
 //     <div
-//       // style={{
-//       //   position: "absolute",
-//       //   top: "5%",
-//       //   left: "33%",
-//       //   height: "200%",
-//       //   // transform: "translate(-50%, -50%)",
-//       // }}
-//       class="back"
+//       style={
+//         {
+//           // position: "absolute",
+//           // top: "5%",
+//           // left: "33%",
+//           // height: "200%",
+//           // transform: "translate(-50%, -50%)",
+//         }
+//       }
+//       // class="back"
 //     >
-//       <Title />
+//       {/*<Title />*/}
 //       <div style={{ marginTop: "-30px", marginRight: 30 }}>
 //         <Wheel
 //           mustStartSpinning={mustSpin}

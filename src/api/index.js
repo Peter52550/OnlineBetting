@@ -1,27 +1,23 @@
+const BN = require("bn.js");
 const getInfo = async (func, accounts, arr) => {
   let values = [];
   let choices = arr.map((ele, index) => {
     let a = func(ele).call({
       from: accounts[0],
     });
-    console.log(a);
     return a;
   });
-  console.log(choices);
   values = await Promise.all(choices);
   return values;
 };
 const getMoreInfo = async (func, accounts, id, arr) => {
-  console.log(id, arr);
   let values = [];
   let choices = arr.map((ele, index) => {
     let a = func(id, index).call({
       from: accounts[0],
     });
-    console.log(a);
     return a;
   });
-  console.log(choices);
   values = await Promise.all(choices);
   return values;
 };
@@ -35,7 +31,7 @@ const wrapperGet = (getter) => {
     throw e; // let caller know the promise was rejected with this reason
   }
 };
-const InfoAPI = {
+export const InfoAPI = {
   getIds: async (contract, accounts) => {
     let values = await contract.methods.getIds().call({
       from: accounts[0],
@@ -78,7 +74,10 @@ const InfoAPI = {
     let values = await contract.methods.getAddressAmount(id).call({
       from: accounts[0],
     });
-    console.log("addressAmount: ", values);
+    // wrapperGet(
+    //   getInfo(contract.methods.getAddressAmount, accounts, arr[0])
+    // );
+    // console.log("addressAmount: ", values);
     return values;
   },
   getChoiceNums: (contract, accounts, arr) => {
@@ -99,6 +98,41 @@ const InfoAPI = {
     );
     return values;
   },
+  getBets: async (contract, accounts) => {
+    let values = await contract.methods.getBets().call({
+      from: accounts[0],
+    });
+    return values;
+  },
 };
-
-export default InfoAPI;
+export const AdderAPI = {
+  addMoney: async (contract, accounts, web3, id, arr, nums) => {
+    let values = [];
+    let choices = arr.map((ele, index) => {
+      let am = Number(nums[index]);
+      if (isNaN(am) === false) {
+        if (am > 0) {
+          let a = contract.methods.addMoney(id, index, am).send({
+            from: accounts[0],
+            value: web3.utils.toWei(String(Number(am) * 0.001)),
+          });
+          return a;
+        }
+      }
+    });
+    values = await Promise.all(choices);
+    return values;
+  },
+  setAnswer: async (contract, accounts, id, num) => {
+    let value = await contract.methods.setAnswer(id, num).send({
+      from: accounts[0],
+    });
+    return value;
+  },
+  distributeMoney: async (contract, accounts, id) => {
+    let value = await contract.methods.distributeMoney(id).send({
+      from: accounts[0],
+    });
+    return value;
+  },
+};

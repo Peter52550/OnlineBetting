@@ -1,0 +1,18 @@
+.container {
+  display: flex;
+  justify-content: space-around;
+  font-family: sans-serif;
+  text-align: center;
+  padding-top: 40px;
+}
+.upper {
+  margin-top: 8px;
+  margin-bottom: -8px;
+}
+.time {
+  font-size: 32px;
+}
+.lower {
+  margin-top: -8px;
+  margin-bottom: 8px;
+}

@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import moment from "moment";
 import clsx from "clsx";
+
 // css
-import styles from "./Info.module.css";
+import styles from "./BetInfo.module.css";
+
 // component
 import { Typography, PageHeader } from "antd";
-// import TwoButtons from "./TwoButtons";
 import BetForm from "./BetForm";
 
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
@@ -21,6 +22,8 @@ export default function BetInfo({
   formUpperBound,
   formPublishTime,
   formLastBetTime,
+  formArea,
+  formCategory,
   formBetType,
   formBetOptions,
   handleTitleNameChange,
@@ -28,6 +31,8 @@ export default function BetInfo({
   handleUpperBoundChange,
   handlePublishTimeChange,
   handleLastBetTimeChange,
+  handleAreaChange,
+  handleCategoryChange,
   handleBetTypeChange,
   handleBetOptionsChange,
   addClick,
@@ -52,17 +57,19 @@ export default function BetInfo({
   return (
     <div>
       <div>
-        <PageHeader
+        {/*<PageHeader
           className={styles.pageheader}
           onBack={() => history.goBack()}
           title={<span className={styles.title}>我要賭博</span>}
-        />
+        />*/}
         <BetForm
           formTitleName={formTitleName}
           formLowerBound={formLowerBound}
           formUpperBound={formUpperBound}
           formPublishTime={formPublishTime}
           formLastBetTime={formLastBetTime}
+          formArea={formArea}
+          formCategory={formCategory}
           formBetType={formBetType}
           formBetOptions={formBetOptions}
           handleTitleNameChange={handleTitleNameChange}
@@ -70,6 +77,8 @@ export default function BetInfo({
           handleUpperBoundChange={handleUpperBoundChange}
           handlePublishTimeChange={handlePublishTimeChange}
           handleLastBetTimeChange={handleLastBetTimeChange}
+          handleAreaChange={handleAreaChange}
+          handleCategoryChange={handleCategoryChange}
           handleBetTypeChange={handleBetTypeChange}
           handleBetOptionsChange={handleBetOptionsChange}
           addClick={addClick}

@@ -1,0 +1,44 @@
+.bet-modal {
+  padding: 28px;
+}
+
+.bet-modal .title {
+  color: #0058a3 !important;
+  font-weight: 500;
+  /* border-top: 1px solid #0058a3; */
+  /* padding-top: 12px; */
+  font-size: 32px;
+  padding-left: 8px;
+
+  /* padding-top: 8px; */
+}
+
+.bet-modal .close-icon {
+  color: #e76b71;
+  font-size: 16px;
+  /* padding-top: 34px; */
+}
+
+.bet-modal .ant-modal-content {
+  border-radius: 12px;
+  overflow-y: scroll;
+  max-height: 500px;
+}
+
+.bet-modal .ant-modal-body {
+  padding: 16px;
+  width: 400px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.bet-modal .big {
+  font-size: 20px;
+  padding: 12px;
+  margin-left: 12px;
+  color: red;
+}
+.bet-modal .small {
+  font-size: 24px;
+  color: #808080;
+}

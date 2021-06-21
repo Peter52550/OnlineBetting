@@ -1,22 +1,18 @@
 import React from "react";
+
 // css
 import styles from "../pages/Main/CardList.module.css";
-// components
-import { useHistory } from "react-router-dom";
-import Card from "../pages/Main/Card";
-import { Typography, Row, Col } from "antd";
-import { useState } from "react";
-const { Title, Text } = Typography;
 
-export default function DashCards({ cards }) {
-  // const [bettings, setBettings] = useState(cards);
-  const history = useHistory();
-  console.log(cards);
+// components
+import Card from "../pages/Main/Card";
+import { Row } from "antd";
+
+export default function DashCards({ cards, type }) {
   return (
     <div className={styles.padding}>
       {cards &&
         cards.map(({ bet_id, title, lowerbound, token, upperbound }) => (
-          <Row span={4} style={{ paddingBottom: 16 }}>
+          <Row span={4} style={{ padding: 16, paddingTop: 48 }}>
             <Card
               bet_id={bet_id}
               title={title}

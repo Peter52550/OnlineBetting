@@ -1,0 +1,12 @@
+.pageheader {
+  padding-bottom: 0px;
+  padding-top: 8px;
+}
+.title {
+  font-size: 24px;
+  font-weight: 400;
+}
+.title:hover {
+  cursor: pointer;
+  color: #00bfff;
+}
