@@ -84,6 +84,7 @@ contract OnlineBetting {
         string memory _region, 
         string memory _genre
     ) public {
+        require(members[msg.sender].isVIP, "You are not VIP!!");
         uint betId = bets.length;
         uint choiceLength = _choices.length;
         uint[] memory currentChoices = new uint[](choiceLength);
