@@ -245,6 +245,10 @@ contract OnlineBetting {
         return hotBets;
     }
 
+    function getComments(uint _id) public view returns(string[] memory) {
+        return bets[_id].comments;
+    }
+
     function _getValidIds() internal view returns(uint, uint[] memory) {
         uint[] memory validIds = new uint[](bets.length);
         uint count = 0;
