@@ -15,6 +15,7 @@ import CheckBetPage from "../pages/Checkbet";
 import WheelPage from "../pages/Wheel";
 import MemberPage from "../pages/Member";
 import AccountPage from "../pages/Account";
+import RulePage from "../pages/Rules";
 
 // components
 import ScrollToTop from "../components/ScrollToTop";
@@ -64,7 +65,9 @@ export default function Router() {
         new BN(formUpperBound).toString(),
         new BN(formPublishTime / 1000).toString(),
         new BN(formLastBetTime / 1000).toString(),
-        formBetOptions
+        formBetOptions,
+        "China",
+        formCategory
       )
       .send({
         from: accounts[0],
@@ -282,6 +285,10 @@ export default function Router() {
                 ownInfo={ownInfo}
                 setOwnInfo={setOwnInfo}
               />
+            </Route>
+            <Route path="/home/rules" exact>
+              <ScrollToTop />
+              <RulePage />
             </Route>
             <Route
               path="/home/:id"

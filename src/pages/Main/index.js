@@ -127,6 +127,14 @@ export default function MainPage({
             className={styles.button}
             icon={<PoweroffOutlined />}
             loading={loading}
+            onClick={() => enterLoading("rules")}
+          >
+            閱讀規則
+          </Button>
+          <Button
+            className={styles.button}
+            icon={<PoweroffOutlined />}
+            loading={loading}
             onClick={() => enterLoading("createbet")}
           >
             發布賭局
