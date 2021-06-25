@@ -27,6 +27,9 @@ import LabelIcon from "@material-ui/icons/Label";
 // api
 import { InfoAPI, AdderAPI } from "../../api";
 
+// config
+import { comments } from "../../config";
+
 export default function CheckBet(props) {
   const {
     handleBettingChange,
@@ -43,6 +46,7 @@ export default function CheckBet(props) {
   const [betInfo, setBetInfo] = useState({});
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
   const tokenDisable = false;
   useEffect(async () => {
     console.log(cardAllBettings);
@@ -55,20 +59,7 @@ export default function CheckBet(props) {
     } else {
       setMode("自己");
     }
-    bet.options = await InfoAPI.getChoices(
-      contract,
-      accounts,
-      bet.bet_id,
-      bet.token
-    );
-    let tokens = await contract.methods.getAddressAmount(bet.bet_id).call({
-      from: accounts[0],
-    });
-    let tt = [];
-    tokens.map((ele) => {
-      tt.push(ele);
-    });
-    bet.ownTokens = tt;
+
     console.log(bet);
     setBetInfo(bet);
     setToken(Array(bet.options.length));
@@ -144,6 +135,9 @@ export default function CheckBet(props) {
       onOk: func,
       // onOk: () => handleBidChange(token),
     });
+  };
+  const handleMessage = (e) => {
+    setMessage(e.target.value);
   };
   console.log(
     Number(betInfo.lastBetTime),
@@ -318,22 +312,24 @@ export default function CheckBet(props) {
         <Divider />
         <div>
           <div className={styles.title}>評價</div>
-          <div style={{ display: "flex", padding: 8 }}>
+          <Col span={20}>
+            <Input
+              className={styles.input}
+              placeholder="留下您的評論吧"
+              size="large"
+              value={message}
+              // disabled={Number(betInfo.lastBetTime) < Number(Date.now())}
+              onChange={(e) => handleMessage(e)}
+            />
+          </Col>
+          {comments.map((comment) => (
             <div className={styles.messageWrapper}>
               <div style={{ marginRight: 8 }}>
                 <ChatBubbleIcon style={{ fontSize: 32 }} />
               </div>
-              <div className={styles.message}>
-                fnwiefnwejncwenvewmfkwemflekwfmwofmowfmwomfow
-              </div>
+              <div className={styles.message}>{comment}</div>
             </div>
-            <div className={styles.messageWrapper}>
-              <div style={{ marginRight: 8 }}>
-                <ChatBubbleIcon style={{ fontSize: 32 }} />
-              </div>
-              <div className={styles.message}>rr</div>
-            </div>
-          </div>
+          ))}
         </div>
         <br />
         <br />

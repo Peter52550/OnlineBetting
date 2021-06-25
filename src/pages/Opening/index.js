@@ -119,15 +119,15 @@ export default function Rules({ setLoading, finish }) {
           </Plx>
         </div>
       </div>*/}
-      <Plx tagName="h1" className={styles.rule5} parallaxData={textData5}>
-        <div
-          className={styles.center}
-          style={{ fontSize: 70, cursor: "pointer", color: "#dddddd" }}
-          onClick={redirect}
-        >
-          Enter the Game
-        </div>
-      </Plx>
+      {/*<Plx tagName="h1" className={styles.rule5} parallaxData={textData5}>*/}
+      <div
+        className={styles.center}
+        style={{ fontSize: 70, cursor: "pointer", color: "#dddddd" }}
+        onClick={redirect}
+      >
+        Enter the Game
+      </div>
+      {/*</Plx>*/}
     </div>
   );
 }
