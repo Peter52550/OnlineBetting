@@ -44,7 +44,10 @@ contract OnlineBetting {
     struct MemberView {
         uint betsConstructed;
         uint moneyAdded;
+        uint howard;
         bool isVIP;
+        bool canGetReward;
+        Reward reward;
     }
 
     constructor() public {
@@ -165,79 +168,69 @@ contract OnlineBetting {
         emit AddComment(_id, _comment);
     }
 
-    function spinWheel() public payable returns(Reward) {
+    function spinWheel() public payable {
         require(msg.value == 0.1 ether, "Not enough money to spin");
         jackpotAmount += 100;
         uint howard = _rng();
+        members[msg.sender].howard = howard;
+        members[msg.sender].canGetReward = false;
         if(howard == 0) {
             msg.sender.transfer(jackpotAmount);
             jackpotAmount = 0;
-            return Reward.Jackpot;
+            members[msg.sender].reward = Reward.Jackpot;
         }
         if(howard > 0 && howard <= 500) {
             msg.sender.transfer(jackpotAmount);
             jackpotAmount -= 200;
-            return Reward.haha_200;
+            members[msg.sender].reward = Reward.haha_200;
         }
         if(howard > 500 && howard <= 1000) {
             msg.sender.transfer(jackpotAmount);
-            jackpotAmount = 0;
-            return Reward.haha_100;
+            jackpotAmount -= 100;
+            members[msg.sender].reward = Reward.haha_100;
         }
         if(howard > 1000 && howard <= 2000) {
             msg.sender.transfer(jackpotAmount);
-            jackpotAmount = 0;
-            return Reward.haha_50;
+            jackpotAmount -= 50;
+            members[msg.sender].reward = Reward.haha_50;
         }
         if(howard > 2000 && howard <= 3000) {
             msg.sender.transfer(jackpotAmount);
-            jackpotAmount = 0;
-            return Reward.haha_20;
+            jackpotAmount -= 20;
+            members[msg.sender].reward = Reward.haha_20;
         }
         if(howard > 3000 && howard <= 4000) {
             msg.sender.transfer(jackpotAmount);
-            jackpotAmount = 0;
-            return Reward.haha_10;
+            jackpotAmount -= 10;
+            members[msg.sender].reward = Reward.haha_10;
         }
         if(howard > 4000 && howard <= 7000) {
             msg.sender.transfer(jackpotAmount);
-            jackpotAmount = 0;
-            return Reward.Sorry;
+            jackpotAmount += 100;
+            members[msg.sender].reward = Reward.Sorry;
         }
         if(howard > 7000) {
             msg.sender.transfer(jackpotAmount);
-            jackpotAmount = 0;
-            return Reward.ByeBye;
+            jackpotAmount += 100;
+            members[msg.sender].reward = Reward.ByeBye;
         }
-    }
-
-    function getIds() public view returns(uint[] memory, Status[] memory) {
-        uint[] memory ids = new uint[](bets.length);
-        Status[] memory statuses = new Status[](bets.length);
-        for(uint i = 0; i < bets.length; i++) {
-            ids[i] = i;
-            statuses[i] = _getStatus(i);
-        }
-        return (ids, statuses);
+        members[msg.sender].canGetReward = true;
     }
 
     function getLastBet() public view returns(Bet memory) {
         return bets[bets.length-1];
     }
 
-    function getBets() public view returns(Bet[] memory) {
-        uint count;
-        uint[] memory ids;
-        (count, ids) = _getValidIds();
-        Bet[] memory validBets = new Bet[](count);
-        for(uint i = 0; i < count; i++) {
-            validBets[i] = bets[ids[i]];
+    function getBets() public view returns(Bet[] memory, Status[] memory) {
+        Status[] memory statuses = new Status[](bets.length);
+        for(uint i = 0; i < bets.length; i++) {
+            statuses[i] = _getStatus(i);
         }
-        return validBets;
+        return (bets, statuses);
     }
 
     function getHotBets() public view returns(Bet[] memory) {
-        Bet[] memory validBets = getBets();
+        Bet[] memory validBets = _getValidBets();
         Bet[] memory hotBets = new Bet[](_min(10, validBets.length));
         _sortBets(validBets);
         for(uint i = 0; i < _min(10, validBets.length); ++i) {
@@ -246,12 +239,36 @@ contract OnlineBetting {
         return hotBets;
     }
 
+    function getVoterChoices(uint _id) public view returns(uint[] memory) {
+        return voterChoice[_id][msg.sender];
+    }
+
     function getComments(uint _id) public view returns(string[] memory) {
         return bets[_id].comments;
     }
 
     function getMemberView() public view returns(MemberView memory) {
         return members[msg.sender];
+    }
+
+    function getJackpot() public view returns(uint) {
+        return jackpotAmount;
+    }
+
+    function getReward() public view returns(Reward) {
+        require(members[msg.sender].canGetReward, "You are not allowed to get Reward");
+        return members[msg.sender].reward;
+    }
+
+    function _getValidBets() internal view returns(Bet[] memory) {
+        uint count;
+        uint[] memory ids;
+        (count, ids) = _getValidIds();
+        Bet[] memory validBets = new Bet[](count);
+        for(uint i = 0; i < count; i++) {
+            validBets[i] = bets[ids[i]];
+        }
+        return validBets;
     }
 
     function _getValidIds() internal view returns(uint, uint[] memory) {
@@ -313,7 +330,7 @@ contract OnlineBetting {
     }
 
     function _sortBets(Bet[] memory _bets) internal pure {
-        _quickSort(_bets, 0, _bets.length-1);
+        if(_bets.length > 0) _quickSort(_bets, 0, _bets.length-1);
     }
 
     function _quickSort(Bet[] memory _bets, uint _init, uint _end) internal pure {
@@ -322,8 +339,8 @@ contract OnlineBetting {
         if(i >= j) return;
         Bet memory pivot = _bets[(_init+_end )/ 2];
         while (i <= j) {
-            while (_bets[i].voter.length > pivot.voter.length) i++;
-            while (pivot.voter.length > _bets[j].voter.length) j--;
+            while (_isLargerThan(_bets[i], pivot)) i++;
+            while (_isLargerThan(pivot, _bets[j])) j--;
             if (i <= j) {
                 (_bets[i], _bets[j]) = (_bets[j], _bets[i]);
                 i++;
@@ -334,6 +351,12 @@ contract OnlineBetting {
             _quickSort(_bets, _init, j);
         if (i < _end)
             _quickSort(_bets, i, _end);
+    }
+
+    function _isLargerThan(Bet memory _bet1, Bet memory _bet2) internal pure returns(bool) {
+        if(_bet1.voter.length > _bet2.voter.length) return true;
+        else if(_bet1.voter.length == _bet2.voter.length) return _bet1.currentAmount > _bet2.currentAmount;
+        else return false;
     }
 
     function _min(uint a, uint b) internal pure returns(uint) {
