@@ -30,8 +30,8 @@ export const areas = [
   "Korea",
   "Canada",
   "Egypt",
-  "Spain",
   "Italy",
+  "other",
 ];
 export const categories = [
   "news",
@@ -43,7 +43,7 @@ export const categories = [
   "bitcoin",
   "school",
   "tech",
-  "car",
+  "other",
 ];
 export const status = [0, 1, 2, 3];
 export const paths = {

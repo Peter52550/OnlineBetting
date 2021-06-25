@@ -39,7 +39,7 @@ export default function Rules({ setLoading, finish }) {
   ];
   return (
     <div className={styles.root}>
-      <div style={{ height: 500 }}>
+      {/*<div style={{ height: 500 }}>
         <Plx
           tagName="h1"
           className={styles.title}
@@ -118,7 +118,7 @@ export default function Rules({ setLoading, finish }) {
             <div>咱們和和氣氣生財 </div>
           </Plx>
         </div>
-      </div>
+      </div>*/}
       <Plx tagName="h1" className={styles.rule5} parallaxData={textData5}>
         <div
           className={styles.center}

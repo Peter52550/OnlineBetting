@@ -50,7 +50,7 @@ export default function Account({ ownInfo, cardOwnBettings }) {
   return (
     <div className={styles.root}>
       <div className={styles.left}>
-        <h1 className={styles.title}>Welcome to ******* !</h1>
+        <h1 className={styles.title}>EE首家線上賭場上線啦</h1>
         <div className={styles.subleft}>
           <div className={styles.bigCard}>
             <div style={{ display: "flex", justifyContent: "space-around" }}>

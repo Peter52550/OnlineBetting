@@ -65,8 +65,9 @@ export default function Router() {
         new BN(formUpperBound).toString(),
         new BN(formPublishTime / 1000).toString(),
         new BN(formLastBetTime / 1000).toString(),
+        new BN(new Date().getTime() / 1000).toString(), // distribute time
         formBetOptions,
-        "China",
+        formArea,
         formCategory
       )
       .send({

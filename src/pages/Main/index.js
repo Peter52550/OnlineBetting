@@ -83,7 +83,6 @@ export default function MainPage({
     setMode("");
   };
 
-  console.log(ownInfo);
   const handleMenuClick = (subMenuType, key) => {
     setMode("click");
     subMenuType === "main"
@@ -100,7 +99,7 @@ export default function MainPage({
     setMode("");
     setCurrentBets([]);
   };
-  console.log(currentBets);
+  // console.log(currentBets);
   return (
     <div style={{ backgroundColor: "#fdfdfd" }}>
       {/*<div

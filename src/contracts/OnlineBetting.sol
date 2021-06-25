@@ -12,21 +12,27 @@ contract OnlineBetting {
     event MoneyAdded(uint betId, address adder, uint choice, uint amount);
     event AnswerSet(uint betId, uint choice);
     event MoneyGiven(address receiver, uint amount);
+    event SetVIP(address member);
+    event AddComment(uint betId, string comment);
 
     //Enums
+    enum Status{ OwnAvailable, OtherAvailable, OwnExpire, OtherExpire }
     enum Region{ Other, Taiwan, China, USA, Europe }
     enum Genre{ Other, News, Politics, Sports }
+    enum Reward{ Sorry, ByeBye, haha_10, haha_20, haha_50, haha_100, haha_200, Jackpot}
 
     //Bet
     struct Bet {
         string title;
         string[] choices;
+        string[] comments;
         address owner;
         uint lowerBound;
         uint currentAmount;
         uint upperBound;
         uint publishTime;
         uint lastBetTime;
+        uint distributeTime;
         uint answer;
         uint[] currentChoices;
         address[] voter;
@@ -35,9 +41,22 @@ contract OnlineBetting {
         Genre genre;
     }
 
+    struct MemberView {
+        uint betsConstructed;
+        uint moneyAdded;
+        bool isVIP;
+    }
+
+    constructor() public {
+        jackpotAmount = 0;
+    }
+
     //Bet list
+    uint jackpotAmount;
     Bet[] bets;
+    mapping (address => MemberView) members;
     mapping (uint => mapping (address => uint[])) voterChoice;
+    mapping (uint => mapping (address => string[])) comments;
 
     //Modifiers
     //Valid bet modifier
@@ -60,10 +79,12 @@ contract OnlineBetting {
         uint _upperBound, 
         uint _publishTime, 
         uint _lastBetTime, 
+        uint _distributeTime,
         string[] memory _choices, 
         string memory _region, 
         string memory _genre
     ) public {
+        require(members[msg.sender].isVIP, "You are not VIP!!");
         uint betId = bets.length;
         uint choiceLength = _choices.length;
         uint[] memory currentChoices = new uint[](choiceLength);
@@ -74,11 +95,19 @@ contract OnlineBetting {
         bet.upperBound = _upperBound;
         bet.publishTime = _publishTime;
         bet.lastBetTime = _lastBetTime;
+        bet.distributeTime = _distributeTime;
         bet.choices = _choices;
         bet.currentChoices = currentChoices;
         bet.region = _str2Region(_region);
         bet.genre = _str2Genre(_genre);
         emit BetAdded(betId, _title);
+        members[msg.sender].betsConstructed++;
+    }
+
+    function setVIP() public payable {
+        require(msg.value == 0.5 ether, "Not enough money to set VIP");
+        members[msg.sender].isVIP = true;
+        emit SetVIP(msg.sender);
     }
 
     function addMoney(uint _id, uint _choice, uint _amount) public payable isValidId(_id) isValidAmount(_id, _amount) {
@@ -90,6 +119,7 @@ contract OnlineBetting {
         _addressInit(_id, msg.sender);
         voterChoice[_id][msg.sender][_choice] += _amount;
         emit MoneyAdded(_id, msg.sender, _choice, _amount);
+        members[msg.sender].moneyAdded += _amount;
     }
     
     function setAnswer(uint _id, uint _answer) public {
@@ -130,6 +160,67 @@ contract OnlineBetting {
         }
     }
 
+    function addComment(uint _id, string memory _comment) public {
+        bets[_id].comments.push(_comment);
+        emit AddComment(_id, _comment);
+    }
+
+    function spinWheel() public payable returns(Reward) {
+        require(msg.value == 0.1 ether, "Not enough money to spin");
+        jackpotAmount += 100;
+        uint howard = _rng();
+        if(howard == 0) {
+            msg.sender.transfer(jackpotAmount);
+            jackpotAmount = 0;
+            return Reward.Jackpot;
+        }
+        if(howard > 0 && howard <= 500) {
+            msg.sender.transfer(jackpotAmount);
+            jackpotAmount -= 200;
+            return Reward.haha_200;
+        }
+        if(howard > 500 && howard <= 1000) {
+            msg.sender.transfer(jackpotAmount);
+            jackpotAmount = 0;
+            return Reward.haha_100;
+        }
+        if(howard > 1000 && howard <= 2000) {
+            msg.sender.transfer(jackpotAmount);
+            jackpotAmount = 0;
+            return Reward.haha_50;
+        }
+        if(howard > 2000 && howard <= 3000) {
+            msg.sender.transfer(jackpotAmount);
+            jackpotAmount = 0;
+            return Reward.haha_20;
+        }
+        if(howard > 3000 && howard <= 4000) {
+            msg.sender.transfer(jackpotAmount);
+            jackpotAmount = 0;
+            return Reward.haha_10;
+        }
+        if(howard > 4000 && howard <= 7000) {
+            msg.sender.transfer(jackpotAmount);
+            jackpotAmount = 0;
+            return Reward.Sorry;
+        }
+        if(howard > 7000) {
+            msg.sender.transfer(jackpotAmount);
+            jackpotAmount = 0;
+            return Reward.ByeBye;
+        }
+    }
+
+    function getIds() public view returns(uint[] memory, Status[] memory) {
+        uint[] memory ids;
+        Status[] memory statuses;
+        for(uint i = 0; i < bets.length; i++) {
+            ids[i] = i;
+            statuses[i] = _getStatus(i);
+        }
+        return (ids, statuses);
+    }
+
     function getLastBet() public view returns(Bet memory) {
         return bets[bets.length-1];
     }
@@ -155,71 +246,8 @@ contract OnlineBetting {
         return hotBets;
     }
 
-
-// version 1.0
-    function getIds() public view returns(uint[] memory, bool[] memory) {
-        uint count;
-        uint[] memory ids;
-        (count, ids) = _getValidIds();
-        uint[] memory validIds = new uint[](count);
-        bool[] memory isOwnIds = new bool[](count);
-        for(uint i = 0; i < count; i++) {
-            validIds[i] = ids[i];
-            isOwnIds[i] = (bets[i].owner == msg.sender);
-        }
-        return (validIds, isOwnIds);
-    }
-
-    function getTitle(uint _id) public view isValidId(_id) returns(string memory) {
-        Bet memory bet = bets[_id];
-        return bet.title;
-    }
-
-    function getLowerBound(uint _id) public view isValidId(_id) returns(uint) {
-        Bet memory bet = bets[_id];
-        return bet.lowerBound;
-    }
-
-    function getCurrentAmount(uint _id) public view isValidId(_id) returns(uint) {
-        Bet memory bet = bets[_id];
-        return bet.currentAmount;
-    }
-
-    function getUpperBound(uint _id) public view isValidId(_id) returns(uint) {
-        Bet memory bet = bets[_id];
-        return bet.upperBound;
-    }
-
-    function getChoiceNum(uint _id) public view isValidId(_id) returns(uint) {
-        return bets[_id].choices.length;
-    }
-
-    function getChoice(uint _id, uint _choice) public view isValidId(_id) returns(string memory) {
-        return bets[_id].choices[_choice];
-    }
-
-    function getChoicesAmount(uint _id) public view isValidId(_id) returns(uint[] memory) {
-        return bets[_id].currentChoices;
-    }
-
-    function getAddressAmount(uint _id) public view isValidId(_id) returns(uint[] memory) {
-        uint len = getChoiceNum(_id);
-        uint[] memory amounts = new uint[](len);
-        if(_hasBet(_id, msg.sender)) {
-            for(uint i = 0; i < len; i++) {
-                amounts[i] = voterChoice[_id][msg.sender][i];
-            }
-        }
-        return amounts;
-    } 
-
-    function getAnswer(uint _id) public view isValidId(_id) returns(uint) {
-        require(bets[_id].isAnswerSet, "Answer not set yet");
-        return bets[_id].answer;
-    }
-
-    function getTime() public view returns(uint) {
-        return now;
+    function getComments(uint _id) public view returns(string[] memory) {
+        return bets[_id].comments;
     }
 
     function _getValidIds() internal view returns(uint, uint[] memory) {
@@ -250,7 +278,7 @@ contract OnlineBetting {
         bool isInit = _hasBet(_id, _better);
         if(!isInit) {
             bets[_id].voter.push(_better);
-            voterChoice[_id][msg.sender] = new uint[](getChoiceNum(_id));
+            voterChoice[_id][msg.sender] = new uint[](bets[_id].choices.length);
         }
     }
 
@@ -279,8 +307,8 @@ contract OnlineBetting {
         if(i == j) return;
         Bet memory pivot = _bets[(_init + (_end - _init) / 2)];
         while (i <= j) {
-            while (_bets[i].currentAmount < pivot.currentAmount) i++;
-            while (pivot.currentAmount < _bets[j].currentAmount) j--;
+            while (_bets[i].voter.length < pivot.voter.length) i++;
+            while (pivot.voter.length < _bets[j].voter.length) j--;
             if (i <= j) {
                 (_bets[uint(i)], _bets[uint(j)]) = (_bets[uint(j)], _bets[uint(i)]);
                 i++;
@@ -296,5 +324,18 @@ contract OnlineBetting {
     function _max(uint a, uint b) internal pure returns(uint) {
         if(a > b) return a;
         else return b;
+    }
+
+    function _getStatus(uint _id) internal view returns(Status) {
+        Bet memory bet = bets[_id];
+        if(bet.owner == msg.sender && bet.publishTime <= now) return Status.OwnAvailable;
+        else if(bet.owner != msg.sender && bet.publishTime <= now) return Status.OtherAvailable;
+        else if(bet.owner != msg.sender && bet.publishTime <= now) return Status.OwnExpire;
+        else if(bet.owner != msg.sender && bet.publishTime <= now) return Status.OtherExpire;
+    }
+
+    function _rng() internal view returns(uint) {
+        uint random = uint(keccak256(abi.encodePacked(block.difficulty, now)));
+        return random%10000;
     }
 }
