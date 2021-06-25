@@ -185,10 +185,8 @@ export default function Router() {
       setContract(instance);
       let validIds = await InfoAPI.getIds(instance, accounts);
       console.log(validIds);
-      // console.log("hey");
-      // let hotBets = await InfoAPI.getHotBets(instance, accounts);
-      // console.log("ho");
-      // console.log(hotBets);
+      let hotBets = await InfoAPI.getHotBets(instance, accounts);
+      console.log(hotBets);
 
       setOwnInfo({
         bets: [],
