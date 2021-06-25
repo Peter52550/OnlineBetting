@@ -2,11 +2,21 @@ import { Button, Card, Popconfirm, message } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 import styles from "./index.module.css";
 
-export default function Member({ ownInfo, setOwnInfo }) {
-  const confirm = () => {
+// api
+import { AdderAPI } from "../../api";
+
+export default function Member({
+  ownInfo,
+  setOwnInfo,
+  contract,
+  accounts,
+  web3,
+}) {
+  const confirm = async () => {
     let info = ownInfo;
     info.member = "copper";
     setOwnInfo(info);
+    await AdderAPI.setVIP(contract, accounts, web3);
     message.info("恭喜您成功加入會員!");
   };
 

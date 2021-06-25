@@ -1,6 +1,8 @@
 // components
 import { Menu, Dropdown, message } from "antd";
 import { DownOutlined } from "@ant-design/icons";
+import { areas, categories } from "../../config";
+import { Area } from "@ant-design/charts";
 
 const onClick = (e) => {
   message.info(`Click on item ${e.domEvent.target.outerText}`);
@@ -11,22 +13,21 @@ export default function DropdownMenu({ type, value, handleClick }) {
     message.info(`Click on item ${e.domEvent.target.outerText}`);
     handleClick(e.domEvent.target.outerText);
   };
-  const areas = () => (
+  const areaMenu = () => (
     <Menu onClick={onClick}>
-      <Menu.Item key="1">寶島</Menu.Item>
-      <Menu.Item key="2">支那</Menu.Item>
-      <Menu.Item key="3">美國</Menu.Item>
-      <Menu.Item key="4">歐洲</Menu.Item>
+      {areas.map((area) => (
+        <Menu.Item key={area}>{area}</Menu.Item>
+      ))}
     </Menu>
   );
-  const categories = () => (
+  const categoryMenu = () => (
     <Menu onClick={onClick}>
-      <Menu.Item key="1">news</Menu.Item>
-      <Menu.Item key="2">politics</Menu.Item>
-      <Menu.Item key="3">sports</Menu.Item>
+      {categories.map((category) => (
+        <Menu.Item key={category}>{category}</Menu.Item>
+      ))}
     </Menu>
   );
-  const overlay = type === "areas" ? areas : categories;
+  const overlay = type === "areas" ? areaMenu : categoryMenu;
   const text =
     value === "" ? (type === "areas" ? "選擇地區" : "選擇類別") : value;
 
