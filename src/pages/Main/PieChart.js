@@ -1,35 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 // components
 import { Pie } from "@ant-design/charts";
-
-export default function PieChart() {
-  var data = [
-    {
-      type: "分类一",
-      value: 27,
-    },
-    {
-      type: "分类二",
-      value: 25,
-    },
-    {
-      type: "分类三",
-      value: 18,
-    },
-    {
-      type: "分类四",
-      value: 15,
-    },
-    {
-      type: "分类五",
-      value: 10,
-    },
-    {
-      type: "其他",
-      value: 5,
-    },
-  ];
+import { areas } from "../../config";
+export default function PieChart({ cardAllBettings }) {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    let mapping = areas.map((area) => ({ type: area, value: 0 }));
+    cardAllBettings.forEach((bet) => {
+      mapping.find((map) => map.type === bet.area).value += Number(
+        bet.ownTokens.reduce(
+          (acc, curValue) => Number(acc) + Number(curValue),
+          0
+        )
+      );
+    });
+    setData(mapping);
+  }, [cardAllBettings]);
   var config = {
     appendPadding: 50,
     data: data,

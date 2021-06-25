@@ -206,7 +206,7 @@ export default function MainPage({
       </div>
       <div style={{ display: "flex", paddingTop: 30 }}>
         <div className={styles.pie}>
-          <PieChart />
+          <PieChart cardAllBettings={cardAllBettings} />
         </div>
         <div className={styles.bar}>
           <BarChart />
