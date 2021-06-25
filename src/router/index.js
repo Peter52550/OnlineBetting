@@ -41,6 +41,7 @@ export default function Router() {
   const [loading, setLoading] = useState(false);
   const [finish, setFinish] = useState(false);
   const [ownInfo, setOwnInfo] = useState({});
+  const [hotBets, setHotBets] = useState([]);
   const createBet = async ({
     formTitleName,
     formLowerBound,
@@ -53,10 +54,15 @@ export default function Router() {
     formBetOptions,
   }) => {
     console.log(
-      formLowerBound,
-      formUpperBound,
-      formPublishTime,
-      formLastBetTime
+      formTitleName,
+      new BN(formLowerBound).toString(),
+      new BN(formUpperBound).toString(),
+      new BN(formPublishTime / 1000).toString(),
+      new BN(formLastBetTime / 1000).toString(),
+      new BN(new Date().getTime() / 1000).toString(), // distribute time
+      formBetOptions,
+      formArea,
+      formCategory
     );
     await contract.methods
       .addBet(
@@ -76,7 +82,7 @@ export default function Router() {
     let validIds = await contract.methods.getIds().call({
       from: accounts[0],
     });
-    console.log(formPublishTime, formLastBetTime);
+
     console.log({
       bet_id: Number(validIds["0"][validIds["0"].length - 1]),
       title: formTitleName,
@@ -137,7 +143,7 @@ export default function Router() {
     // let _ = await addChoice(iid, formBetOptions);
   };
 
-  console.log(cardOwnBettings);
+  // console.log(cardOwnBettings);
   const addChoice = async (id, choices) => {
     for (let index = 0; index < choices.length; index++) {
       const choice = choices[index];
@@ -177,7 +183,16 @@ export default function Router() {
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
-      let validIds = await InfoAPI.getIds(instance, accounts);
+      // let validIds = await InfoAPI.getIds(instance, accounts);
+      // console.log(validIds);
+      // console.log("hey");
+      // let hotBets = await InfoAPI.getHotBets(instance, accounts);
+      // console.log("ho");
+      // console.log(hotBets);
+      let validIds = [
+        ["1", "2"],
+        [0, 0],
+      ];
       setOwnInfo({
         bets: [],
         totalBetAmount: 0,
@@ -190,7 +205,7 @@ export default function Router() {
       } else {
         let bets = await InfoAPI.getBets(instance, accounts);
         console.log(bets);
-        console.log(validIds);
+        // console.log(validIds);
         let ownBets = [];
         let allBets = [];
 
@@ -209,10 +224,18 @@ export default function Router() {
             upperbound: Number(bets[index]["upperBound"]),
             publishTime: Number(bets[index]["publishTime"]) * 1000,
             lastBetTime: Number(bets[index]["lastBetTime"] * 1000),
-            area: areas[Math.floor(Math.random() * areas.length)],
-            category: categories[Math.floor(Math.random() * categories.length)],
+            distributeTime: Number(bets[index]["distributeTime"] * 1000),
+            // area: areas[Math.floor(Math.random() * areas.length)],
+            // category: categories[Math.floor(Math.random() * categories.length)],
+            area: areas[Number(bets[index]["region"])],
+            category: categories[Number(bets[index]["genre"])],
             betType: "multipleChoice",
-            options: [],
+            options: bets[index]["choices"],
+            comments: bets[index]["comments"],
+            isAnswerSet: bets[index]["isAnswerSet"],
+            ownerId: bets[index]["owner"],
+            voter: bets[index]["voter"],
+            currentAmount: bets[index]["currentAmount"],
           };
           if (validIds["1"][index] === true) {
             ownBets.push({ ...bet, status: 0 });
@@ -229,8 +252,6 @@ export default function Router() {
           });
           return cards;
         });
-        console.log(ownBets);
-        console.log(allBets);
         setCardAllBets(newPath);
         setCardOwnBettings(ownBets);
         setCardAllBettings(allBets);

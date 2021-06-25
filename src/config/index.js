@@ -45,6 +45,11 @@ export const categories = [
   "tech",
   "other",
 ];
+export const comments = [
+  "hgiehwnkejwnfwenolewglewg",
+  "wkjgjkengkewnfewfk",
+  "wenwjkenkwenkewnmkelwmnek",
+];
 export const status = [0, 1, 2, 3];
 export const paths = {
   news: [
