@@ -238,7 +238,7 @@ contract OnlineBetting {
 
     function getHotBets() public view returns(Bet[] memory) {
         Bet[] memory validBets = getBets();
-        Bet[] memory hotBets = new Bet[](10);
+        Bet[] memory hotBets = new Bet[](_min(10, validBets.length));
         _sortBets(validBets);
         for(uint i = 0; i < _min(10, validBets.length); ++i) {
             hotBets[i] = validBets[i];
@@ -319,13 +319,13 @@ contract OnlineBetting {
     function _quickSort(Bet[] memory _bets, uint _init, uint _end) internal pure {
         uint i = _init;
         uint j = _end;
-        if(i == j) return;
-        Bet memory pivot = _bets[(_init + (_end - _init) / 2)];
+        if(i >= j) return;
+        Bet memory pivot = _bets[(_init+_end )/ 2];
         while (i <= j) {
-            while (_bets[i].voter.length < pivot.voter.length) i++;
-            while (pivot.voter.length < _bets[j].voter.length) j--;
+            while (_bets[i].voter.length > pivot.voter.length) i++;
+            while (pivot.voter.length > _bets[j].voter.length) j--;
             if (i <= j) {
-                (_bets[uint(i)], _bets[uint(j)]) = (_bets[uint(j)], _bets[uint(i)]);
+                (_bets[i], _bets[j]) = (_bets[j], _bets[i]);
                 i++;
                 j--;
             }

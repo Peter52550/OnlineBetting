@@ -2,34 +2,21 @@
 import { Menu, Dropdown } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
-const menu = (
-  <Menu>
-    <Menu.Item key="0">
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.antgroup.com"
-      >
-        1st menu item
-      </a>
-    </Menu.Item>
-    <Menu.Item key="1">
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.aliyun.com"
-      >
-        2nd menu item
-      </a>
-    </Menu.Item>
-  </Menu>
-);
-
-export default function DropMenu() {
+export default function DropMenu({ menuText, setMenuText }) {
+  const items = ["1小時以內", "12小時以內", "24小時以內", "24小時以前"];
+  const menu = (
+    <Menu>
+      {items.map((item) => (
+        <Menu.Item key={item} onClick={() => setMenuText(item)}>
+          {item}
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
   return (
     <Dropdown overlay={menu}>
       <div>
-        {"Hover me"}
+        {menuText}
         <DownOutlined />
       </div>
     </Dropdown>

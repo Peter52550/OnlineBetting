@@ -185,8 +185,8 @@ export default function Router() {
       setContract(instance);
       let validIds = await InfoAPI.getIds(instance, accounts);
       console.log(validIds);
-      let hotBets = await InfoAPI.getHotBets(instance, accounts);
-      console.log(hotBets);
+      // let hotBets = await InfoAPI.getHotBets(instance, accounts);
+      // console.log(hotBets);
 
       setOwnInfo({
         bets: [],
@@ -209,6 +209,10 @@ export default function Router() {
           bets[index]["currentChoices"].forEach((ele) => {
             tokens.push(Number(ele));
           });
+          // let ownTokens = [];
+          // bets[index]["ownTokens"].forEach((ele) => {
+          //   ownTokens.push(Number(ele));
+          // });
           let comments = [];
           bets[index]["comments"].forEach((ele) => {
             comments.push(ele);
@@ -219,7 +223,7 @@ export default function Router() {
             title: bets[index]["title"],
             lowerbound: Number(bets[index]["lowerBound"]),
             token: tokens,
-            ownTokens: Array(bets[index]["currentChoices"].length).fill(0),
+            ownTokens: Array(bets[index]["currentChoices"].length).fill(200),
             upperbound: Number(bets[index]["upperBound"]),
             publishTime: Number(bets[index]["publishTime"]) * 1000,
             lastBetTime: Number(bets[index]["lastBetTime"] * 1000),

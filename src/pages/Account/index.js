@@ -19,6 +19,8 @@ import { memberships } from "../../config";
 
 export default function Account({ ownInfo, cardOwnBettings }) {
   console.log(ownInfo);
+  const [menuText, setMenuText] = useState("24小時以內");
+  const [leftData, setLeftData] = useState([]);
   const member =
     ownInfo.member === "copper"
       ? "古銅"
@@ -47,6 +49,13 @@ export default function Account({ ownInfo, cardOwnBettings }) {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
+  console.log(leftData);
+  console.log(
+    leftData
+      .map(({ value }) => value)
+      .reduce((acc, curValue) => Number(acc) + Number(curValue), 0) > 0
+  );
+  console.log(cardOwnBettings);
   return (
     <div className={styles.root}>
       <div className={styles.left}>
@@ -55,17 +64,27 @@ export default function Account({ ownInfo, cardOwnBettings }) {
           <div className={styles.bigCard}>
             <div style={{ display: "flex", justifyContent: "space-around" }}>
               <div>Transactions by Category</div>
-              <DropMenu />
+              <DropMenu menuText={menuText} setMenuText={setMenuText} />
             </div>
-            <PieChart />
+            {leftData
+              .map(({ value }) => value)
+              .reduce((acc, curValue) => Number(acc) + Number(curValue), 0) >
+            0 ? (
+              <PieChart
+                cardOwnBettings={cardOwnBettings}
+                menuText={menuText}
+                setLeftData={setLeftData}
+              />
+            ) : (
+              <div>目前查無資料</div>
+            )}
           </div>
 
           <div className={styles.bigCard} style={{ marginLeft: 40 }}>
             <div style={{ display: "flex", justifyContent: "space-around" }}>
-              <div>Transactions by Category</div>
-              <DropMenu />
+              <div>Transactions by Region</div>
             </div>
-            <ColumnChart />
+            <ColumnChart cardOwnBettings={cardOwnBettings} />
           </div>
         </div>
         <div className={styles.down}>

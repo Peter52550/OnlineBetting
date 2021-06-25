@@ -57,11 +57,9 @@ export default function CheckBet(props) {
   const [message, setMessage] = useState("");
   const tokenDisable = false;
   useEffect(async () => {
-    console.log(cardAllBettings);
     let bet = cardOwnBettings.find(({ bet_id }) => bet_id === Number(id));
     if (bet === undefined) {
       bet = cardAllBettings.find(({ bet_id }) => bet_id === Number(id));
-      console.log("here ", bet);
       if (bet.status === 1) setMode("熱門");
       else setMode("全部");
     } else {
