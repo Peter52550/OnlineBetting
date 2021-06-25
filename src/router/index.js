@@ -183,16 +183,13 @@ export default function Router() {
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
-      // let validIds = await InfoAPI.getIds(instance, accounts);
-      // console.log(validIds);
+      let validIds = await InfoAPI.getIds(instance, accounts);
+      console.log(validIds);
       // console.log("hey");
       // let hotBets = await InfoAPI.getHotBets(instance, accounts);
       // console.log("ho");
       // console.log(hotBets);
-      let validIds = [
-        ["1", "2"],
-        [0, 0],
-      ];
+
       setOwnInfo({
         bets: [],
         totalBetAmount: 0,
@@ -214,6 +211,10 @@ export default function Router() {
           bets[index]["currentChoices"].forEach((ele) => {
             tokens.push(Number(ele));
           });
+          let comments = [];
+          bets[index]["comments"].forEach((ele) => {
+            comments.push(ele);
+          });
 
           let bet = {
             bet_id: Number(id),
@@ -231,13 +232,13 @@ export default function Router() {
             category: categories[Number(bets[index]["genre"])],
             betType: "multipleChoice",
             options: bets[index]["choices"],
-            comments: bets[index]["comments"],
+            comments: comments,
             isAnswerSet: bets[index]["isAnswerSet"],
             ownerId: bets[index]["owner"],
             voter: bets[index]["voter"],
             currentAmount: bets[index]["currentAmount"],
           };
-          if (validIds["1"][index] === true) {
+          if (validIds["1"][index] === "0") {
             ownBets.push({ ...bet, status: 0 });
             allBets.push({ ...bet, status: 0 });
           } else {
@@ -325,6 +326,7 @@ export default function Router() {
                     contract={contract}
                     accounts={accounts}
                     web3={web3}
+                    ownInfo={ownInfo}
                   />
                 </>
               )}

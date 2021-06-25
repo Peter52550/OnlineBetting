@@ -15,7 +15,15 @@ import {
   SettingOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { Col, Input, Button, Modal, Divider } from "antd";
+import {
+  Col,
+  Input,
+  Button,
+  Modal,
+  Divider,
+  Row,
+  message as AntMessage,
+} from "antd";
 import Loading from "../../components/Loading";
 import Timer from "./Timer";
 
@@ -59,7 +67,8 @@ export default function CheckBet(props) {
     } else {
       setMode("自己");
     }
-
+    let coms = await InfoAPI.getComments(contract, web3, id);
+    console.log(coms);
     console.log(bet);
     setBetInfo(bet);
     setToken(Array(bet.options.length));
@@ -125,6 +134,7 @@ export default function CheckBet(props) {
     if (mode === 0) text = "下注嗎??";
     else if (mode === 1)
       text = "答案嗎??(答案只能由開局者設定喔)~確認答案後將直接分發賭金";
+    else if (mode === 2) text = "發佈嗎?";
     else text = "分發嗎??";
     Modal.confirm({
       title: "Confirm",
@@ -136,8 +146,37 @@ export default function CheckBet(props) {
       // onOk: () => handleBidChange(token),
     });
   };
+
   const handleMessage = (e) => {
     setMessage(e.target.value);
+  };
+  const addComment = async (e) => {
+    await AdderAPI.addComment(contract, accounts, id, message);
+    let bet = betInfo;
+    bet.comments.push(message);
+    setBetInfo(bet);
+    let bettings;
+    if (mode === "自己") {
+      bettings = [
+        bet,
+        ...cardOwnBettings.filter(
+          ({ bet_id }) => Number(bet_id) !== Number(id)
+        ),
+      ];
+
+      handleBettingChange(bettings);
+    } else if (mode === "熱門") {
+      bettings = [
+        bet,
+        ...cardAllBettings.filter(
+          ({ bet_id }) => Number(bet_id) !== Number(id)
+        ),
+      ];
+      handleBettingChange(bettings);
+    }
+    console.log(bettings);
+    setMessage("");
+    AntMessage.info("發佈成功!");
   };
   console.log(
     Number(betInfo.lastBetTime),
@@ -312,17 +351,26 @@ export default function CheckBet(props) {
         <Divider />
         <div>
           <div className={styles.title}>評價</div>
-          <Col span={20}>
-            <Input
-              className={styles.input}
-              placeholder="留下您的評論吧"
-              size="large"
-              value={message}
-              // disabled={Number(betInfo.lastBetTime) < Number(Date.now())}
-              onChange={(e) => handleMessage(e)}
-            />
-          </Col>
-          {comments.map((comment) => (
+          <Row>
+            <Col span={15}>
+              <Input
+                className={styles.input}
+                placeholder="留下您的評論吧"
+                size="large"
+                value={message}
+                // disabled={Number(betInfo.lastBetTime) < Number(Date.now())}
+                onChange={(e) => handleMessage(e)}
+              />
+            </Col>
+            <Button
+              className={styles.button}
+              onClick={() => confirm(() => addComment(), 2)}
+              disabled={message === ""}
+            >
+              發布
+            </Button>
+          </Row>
+          {betInfo.comments.map((comment) => (
             <div className={styles.messageWrapper}>
               <div style={{ marginRight: 8 }}>
                 <ChatBubbleIcon style={{ fontSize: 32 }} />

@@ -212,8 +212,8 @@ contract OnlineBetting {
     }
 
     function getIds() public view returns(uint[] memory, Status[] memory) {
-        uint[] memory ids;
-        Status[] memory statuses;
+        uint[] memory ids = new uint[](bets.length);
+        Status[] memory statuses = new Status[](bets.length);
         for(uint i = 0; i < bets.length; i++) {
             ids[i] = i;
             statuses[i] = _getStatus(i);
@@ -240,7 +240,7 @@ contract OnlineBetting {
         Bet[] memory validBets = getBets();
         Bet[] memory hotBets = new Bet[](10);
         _sortBets(validBets);
-        for(uint i = 0; i < _max(10, validBets.length); ++i) {
+        for(uint i = 0; i < _min(10, validBets.length); ++i) {
             hotBets[i] = validBets[i];
         }
         return hotBets;
@@ -336,16 +336,16 @@ contract OnlineBetting {
             _quickSort(_bets, i, _end);
     }
 
-    function _max(uint a, uint b) internal pure returns(uint) {
-        if(a > b) return a;
-        else return b;
+    function _min(uint a, uint b) internal pure returns(uint) {
+        if(a > b) return b;
+        else return a;
     }
 
     function _getStatus(uint _id) internal view returns(Status) {
         Bet memory bet = bets[_id];
-        if(bet.owner == msg.sender && bet.publishTime <= now) return Status.OwnAvailable;
-        else if(bet.owner != msg.sender && bet.publishTime <= now) return Status.OtherAvailable;
-        else if(bet.owner != msg.sender && bet.publishTime <= now) return Status.OwnExpire;
+        if(bet.owner == msg.sender && bet.publishTime > now) return Status.OwnAvailable;
+        else if(bet.owner != msg.sender && bet.publishTime > now) return Status.OtherAvailable;
+        else if(bet.owner == msg.sender && bet.publishTime <= now) return Status.OwnExpire;
         else if(bet.owner != msg.sender && bet.publishTime <= now) return Status.OtherExpire;
     }
 
