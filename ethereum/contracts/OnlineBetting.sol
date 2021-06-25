@@ -17,8 +17,8 @@ contract OnlineBetting {
 
     //Enums
     enum Status{ OwnAvailable, OtherAvailable, OwnExpire, OtherExpire }
-    enum Region{ Other, Taiwan, China, USA, Europe }
-    enum Genre{ Other, News, Politics, Sports }
+    enum Region{ Other, Taiwan, China, USA, UK, Japan, Korea, Canada, Egypt, Italy }
+    enum Genre{ Other, News, Politics, Sports, Music, Meme, Art, Bitcoin, School, Tech }
     enum Reward{ Sorry, ByeBye, haha_10, haha_20, haha_50, haha_100, haha_200, Jackpot}
 
     //Bet
@@ -250,6 +250,10 @@ contract OnlineBetting {
         return bets[_id].comments;
     }
 
+    function getMemberView() public view returns(MemberView memory) {
+        return members[msg.sender];
+    }
+
     function _getValidIds() internal view returns(uint, uint[] memory) {
         uint[] memory validIds = new uint[](bets.length);
         uint count = 0;
@@ -285,8 +289,13 @@ contract OnlineBetting {
     function _str2Region(string memory _region) internal pure returns(Region) {
         if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Taiwan"))) return Region.Taiwan;
         if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("China"))) return Region.China;
-        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("USA"))) return Region.Taiwan;
-        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Europe"))) return Region.Europe;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("USA"))) return Region.USA;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("UK"))) return Region.UK;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Japan"))) return Region.Japan;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Korea"))) return Region.Korea;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Canada"))) return Region.Canada;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Egypt"))) return Region.Egypt;
+        if(keccak256(abi.encodePacked(_region)) == keccak256(abi.encodePacked("Italy"))) return Region.Italy;
         else return Region.Other;
     }
 
@@ -294,6 +303,12 @@ contract OnlineBetting {
         if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("News"))) return Genre.News;
         if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Sports"))) return Genre.Sports;
         if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Politics"))) return Genre.Politics;
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Music"))) return Genre.Music;
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Meme"))) return Genre.Meme;
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Art"))) return Genre.Art;
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Bitcoin"))) return Genre.Bitcoin;
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("School"))) return Genre.School;
+        if(keccak256(abi.encodePacked(_genre)) == keccak256(abi.encodePacked("Tech"))) return Genre.Tech;
         return Genre.Other;
     }
 
