@@ -212,8 +212,8 @@ contract OnlineBetting {
         members[msg.sender].canGetReward = true;
     }
 
-    function getLastBet() public view returns(Bet memory) {
-        return bets[bets.length-1];
+    function getLastBet() public view returns(uint, Bet memory) {
+        return (bets.length-1, bets[bets.length-1]);
     }
 
     function getBets() public view returns(uint[] memory, Bet[] memory, Status[] memory) {
