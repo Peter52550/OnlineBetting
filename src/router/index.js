@@ -94,6 +94,7 @@ export default function Router() {
     //   from: accounts[0],
     // });
     let bet = await InfoAPI.getLastBet(contract, accounts);
+    console.log(bet);
     console.log({
       bet_id: Number(bet.bet_id),
       title: formTitleName,
@@ -110,14 +111,13 @@ export default function Router() {
       status: 0,
       comments: [],
       isAnswerSet: false,
-      ownerId: bet.ownerId,
+      ownerId: bet.owner,
       voter: [],
       currentAmount: 0,
     });
     console.log("after add bet: ", bet);
     setCardOwnBettings([
       {
-        user_id: 8888,
         bet_id: Number(bet.bet_id),
         title: formTitleName,
         lowerbound: formLowerBound,
@@ -142,7 +142,6 @@ export default function Router() {
 
     setCardAllBettings([
       {
-        user_id: 8888,
         bet_id: Number(bet.bet_id),
         title: formTitleName,
         lowerbound: formLowerBound,
