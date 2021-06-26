@@ -102,6 +102,7 @@ export default function CheckBet(props) {
     bettings.unshift(bet);
     handleBettingChange(bettings, mode);
     setToken(Array(betInfo.options.length).fill(""));
+    message.info("下注成功!");
   };
   const handleTokenChange = (e, i) => {
     let newToken = [...token];
