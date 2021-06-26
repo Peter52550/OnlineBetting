@@ -174,43 +174,39 @@ contract OnlineBetting {
         members[msg.sender].howard = howard;
         members[msg.sender].canGetReward = false;
         if(howard == 0) {
-            msg.sender.transfer(jackpotAmount);
+            msg.sender.transfer(jackpotAmount*SMALLEST_FEE);
             jackpotAmount = 0;
             members[msg.sender].reward = Reward.Jackpot;
         }
         if(howard > 0 && howard <= 500) {
-            msg.sender.transfer(jackpotAmount);
+            msg.sender.transfer(0.2 ether);
             jackpotAmount -= 200;
             members[msg.sender].reward = Reward.haha_200;
         }
         if(howard > 500 && howard <= 1000) {
-            msg.sender.transfer(jackpotAmount);
+            msg.sender.transfer(0.1 ether);
             jackpotAmount -= 100;
             members[msg.sender].reward = Reward.haha_100;
         }
         if(howard > 1000 && howard <= 2000) {
-            msg.sender.transfer(jackpotAmount);
+            msg.sender.transfer(0.05 ether);
             jackpotAmount -= 50;
             members[msg.sender].reward = Reward.haha_50;
         }
         if(howard > 2000 && howard <= 3000) {
-            msg.sender.transfer(jackpotAmount);
+            msg.sender.transfer(0.02 ether);
             jackpotAmount -= 20;
             members[msg.sender].reward = Reward.haha_20;
         }
         if(howard > 3000 && howard <= 4000) {
-            msg.sender.transfer(jackpotAmount);
+            msg.sender.transfer(0.01 ether);
             jackpotAmount -= 10;
             members[msg.sender].reward = Reward.haha_10;
         }
         if(howard > 4000 && howard <= 7000) {
-            msg.sender.transfer(jackpotAmount);
-            jackpotAmount += 100;
             members[msg.sender].reward = Reward.Sorry;
         }
         if(howard > 7000) {
-            msg.sender.transfer(jackpotAmount);
-            jackpotAmount += 100;
             members[msg.sender].reward = Reward.ByeBye;
         }
         members[msg.sender].canGetReward = true;

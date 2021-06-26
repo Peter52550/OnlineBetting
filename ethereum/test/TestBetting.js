@@ -104,19 +104,39 @@ contract('Peter', (accounts) => {
     const member0 = await token.getMemberView.call({from: accounts[0]});
     const member1 = await token.getMemberView.call({from: accounts[1]});
     const member2 = await token.getMemberView.call({from: accounts[2]});
+    const choice00 = await token.getVoterChoices.call(0, {from: accounts[0]});
+    const choice01 = await token.getVoterChoices.call(1, {from: accounts[0]});
+    const choice02 = await token.getVoterChoices.call(2, {from: accounts[0]});
+    const choice10 = await token.getVoterChoices.call(0, {from: accounts[1]});
+    const choice11 = await token.getVoterChoices.call(1, {from: accounts[1]});
+    const choice12 = await token.getVoterChoices.call(2, {from: accounts[1]});
+    const choice20 = await token.getVoterChoices.call(0, {from: accounts[2]});
+    const choice21 = await token.getVoterChoices.call(1, {from: accounts[2]});
+    const choice22 = await token.getVoterChoices.call(2, {from: accounts[2]});
 
     //console.log(ids[1][0].toNumber());
     //console.log(bets);
-    console.log(hotBets);
+    //console.log(hotBets);
     console.log(member0);
     console.log(member1);
     console.log(member2);
+    console.log(choice00);
+    console.log(choice01);
+    console.log(choice02);
+    console.log(choice10);
+    console.log(choice11);
+    console.log(choice12);
+    console.log(choice20);
+    console.log(choice21);
+    console.log(choice22);
   })
   it('TestSpinWheel' , async () => {
     await token.spinWheel({from: accounts[0], value: web3.utils.toWei("0.1")});
     const asdf = await token.getReward.call({from: accounts[0]});
     const member = await token.getMemberView.call({from: accounts[0]});
+    const jackpot = await token.getJackpot.call({from: accounts[0]});
     console.log(asdf.toNumber());
     console.log(member);
+    console.log(jackpot)
   })
 })
