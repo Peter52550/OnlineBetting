@@ -59,7 +59,6 @@ contract OnlineBetting {
     Bet[] bets;
     mapping (address => MemberView) members;
     mapping (uint => mapping (address => uint[])) voterChoice;
-    mapping (uint => mapping (address => string[])) comments;
 
     //Modifiers
     //Valid bet modifier
