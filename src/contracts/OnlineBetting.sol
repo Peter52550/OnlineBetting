@@ -221,12 +221,14 @@ contract OnlineBetting {
         return bets[bets.length-1];
     }
 
-    function getBets() public view returns(Bet[] memory, Status[] memory) {
+    function getBets() public view returns(uint[] memory, Bet[] memory, Status[] memory) {
+        uint[] memory ids = new uint[](bets.length);
         Status[] memory statuses = new Status[](bets.length);
         for(uint i = 0; i < bets.length; i++) {
+            ids[i] = i;
             statuses[i] = _getStatus(i);
         }
-        return (bets, statuses);
+        return (ids, bets, statuses);
     }
 
     function getHotBets() public view returns(Bet[] memory) {

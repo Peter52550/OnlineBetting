@@ -112,7 +112,7 @@ const data = [
   { option: segments[7], style: { backgroundColor: segColors[7] } },
 ];
 
-export default ({ contract, accounts, ownInfo }) => {
+export default ({ contract, accounts, ownInfo, web3 }) => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
 
@@ -120,7 +120,7 @@ export default ({ contract, accounts, ownInfo }) => {
     if (ownInfo.member === "none") {
       message.info("加入會員才可抽獎喔");
     } else {
-      await AdderAPI.spinWheel(contract, accounts);
+      await AdderAPI.spinWheel(contract, accounts, web3);
       let newPrizeNumber = await InfoAPI.getJackpot(contract, accounts);
       // const newPrizeNumber = Math.floor(Math.random() * data.length);
       setPrizeNumber(newPrizeNumber);
@@ -132,19 +132,8 @@ export default ({ contract, accounts, ownInfo }) => {
     message.info(`恭喜您獲得${reward}, 您可以至您的錢包查收`);
   };
   return (
-    <div
-      style={
-        {
-          // position: "absolute",
-          // top: "5%",
-          // left: "33%",
-          // height: "200%",
-          // transform: "translate(-50%, -50%)",
-        }
-      }
-      // class="back"
-    >
-      <div style={{ marginTop: "-30px", marginRight: 30 }}>
+    <div>
+      <div style={{ marginTop: "120px", marginLeft: 450 }}>
         <Wheel
           mustStartSpinning={mustSpin}
           prizeNumber={prizeNumber}

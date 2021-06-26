@@ -17,8 +17,16 @@ import cat from "../../images/cat.jpeg";
 // config
 import { memberships } from "../../config";
 
-export default function Account({ ownInfo, cardOwnBettings }) {
-  console.log(ownInfo);
+// api
+import { InfoAPI, AdderAPI } from "../../api";
+
+export default function Account({
+  ownInfo,
+  cardOwnBettings,
+  setOwnInfo,
+  contract,
+  accounts,
+}) {
   const [menuText, setMenuText] = useState("24小時以內");
   const [leftData, setLeftData] = useState(
     cardOwnBettings
@@ -54,22 +62,29 @@ export default function Account({ ownInfo, cardOwnBettings }) {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-  console.log(
-    cardOwnBettings
-      .map(({ distributeTime }) => distributeTime)
-      .sort(function (a, b) {
-        return a.distributeTime - b.distributeTime;
-      })
-  );
-  useEffect(() => {
-    ownInfo.active =
-      cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet).length > 0
-        ? 0
-        : cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet)[0].voter
-            .length > 0
-        ? cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet)[0].voter
-            .length - ownInfo.active
-        : ownInfo.active;
+  const getMemberShip = (isVIP, money) => {
+    if (!isVIP) return "none";
+    else {
+      if (money < 10000) return "copper";
+      else if (money < 30000) return "golden";
+      else return "diamond";
+    }
+  };
+  useEffect(async () => {
+    let memberInfo = await InfoAPI.getMemberView(contract, accounts);
+    setOwnInfo({
+      betConstructed: memberInfo["betsConstructed"],
+      member: getMemberShip(memberInfo["isVIP"], memberInfo["moneyAdded"]),
+      betAmount: memberInfo["moneyAdded"],
+      active:
+        cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet).length === 0
+          ? 0
+          : cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet)[0].voter
+              .length > 0
+          ? cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet)[0].voter
+              .length - ownInfo.active
+          : ownInfo.active,
+    });
   }, [cardOwnBettings]);
   return (
     <div className={styles.root}>
@@ -152,7 +167,7 @@ export default function Account({ ownInfo, cardOwnBettings }) {
       <div className={styles.right}>
         <img src={cat} alt="cat" className={styles.image} />
         <div className={styles.icon}>
-          <img src={memberships[ownInfo.member].nextLevel} alt="member" />
+          <img src={memberships[ownInfo.member].src} alt="member" />
           <div style={{ padding: 4 }}>
             {memberships[ownInfo.member].tooltip}
           </div>
@@ -176,7 +191,7 @@ export default function Account({ ownInfo, cardOwnBettings }) {
               </div>
               <div className={styles.rightCommentUp}>ways to</div>
               <img
-                src={memberships[ownInfo.member].src}
+                src={memberships[ownInfo["member"]].nextLevel}
                 alt="member"
                 className={styles.rightImageUp}
               />

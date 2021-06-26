@@ -30,6 +30,14 @@ import { InfoAPI, AdderAPI } from "../api";
 
 const BN = require("bn.js");
 
+const getMemberShip = (isVIP, money) => {
+  if (!isVIP) return "none";
+  else {
+    if (money < 10000) return "copper";
+    else if (money < 30000) return "golden";
+    else return "diamond";
+  }
+};
 export default function Router() {
   const [id, setId] = useState(99999);
   const [cardOwnBettings, setCardOwnBettings] = useState([]);
@@ -44,6 +52,7 @@ export default function Router() {
   const [ownInfo, setOwnInfo] = useState({});
   const [hotBets, setHotBets] = useState([]);
   const history = useHistory();
+  console.log(history);
   const createBet = async ({
     formTitleName,
     formLowerBound,
@@ -86,7 +95,7 @@ export default function Router() {
     // });
     let bet = await InfoAPI.getLastBet(contract, accounts);
     console.log({
-      bet_id: Number(100),
+      bet_id: Number(bet.bet_id),
       title: formTitleName,
       lowerbound: formLowerBound,
       token: Array(formBetOptions.length).fill(0),
@@ -109,7 +118,7 @@ export default function Router() {
     setCardOwnBettings([
       {
         user_id: 8888,
-        bet_id: Number(100),
+        bet_id: Number(bet.bet_id),
         title: formTitleName,
         lowerbound: formLowerBound,
         token: Array(formBetOptions.length).fill(0),
@@ -134,7 +143,7 @@ export default function Router() {
     setCardAllBettings([
       {
         user_id: 8888,
-        bet_id: Number(100),
+        bet_id: Number(bet.bet_id),
         title: formTitleName,
         lowerbound: formLowerBound,
         token: Array(formBetOptions.length).fill(0),
@@ -195,32 +204,73 @@ export default function Router() {
       setWeb3(web3);
       setAccounts(accounts);
       setContract(instance);
-
+      let memberInfo = await InfoAPI.getMemberView(instance, accounts);
+      console.log(memberInfo);
       setOwnInfo({
-        bets: [],
-        betConstructed: 0,
-        member: "none",
-        betAmount: 0,
+        betConstructed: memberInfo["betsConstructed"],
+        member: getMemberShip(memberInfo["isVIP"], memberInfo["moneyAdded"]),
+        betAmount: memberInfo["moneyAdded"],
         active: 0,
       });
       let all = await InfoAPI.getBets(instance, accounts);
       console.log(all);
-      let bets = all["0"];
-      let validIds = all["1"];
+      let validIds = all[0];
+      let bets = all[1];
+      let statuses = all[2];
       if (all.length === 0) {
         setCardAllBettings([]);
         setCardOwnBettings([]);
       } else {
         console.log(all);
         let hotbets = await InfoAPI.getHotBets(instance, accounts);
-        let hots = hotbets.filter(({ isAnswerSet }) => !isAnswerSet);
-        let hotFinal = [];
+        console.log(hotbets);
+        let hots = hotbets
+          .filter(({ isAnswerSet }) => !isAnswerSet)
+          .map((bet) => {
+            let tokens = [];
+            bet["currentChoices"].forEach((ele) => {
+              tokens.push(Number(ele));
+            });
+            // let ownTokens = [];
+            // bets[index]["ownTokens"].forEach((ele) => {
+            //   ownTokens.push(Number(ele));
+            // });
+            let comments = [];
+            bet["comments"].forEach((ele) => {
+              comments.push(ele);
+            });
+            return {
+              bet_id: 100,
+              title: bet["title"],
+              lowerbound: Number(bet["lowerBound"]),
+              token: tokens,
+              ownTokens: Array(bet["currentChoices"].length).fill(200),
+              upperbound: Number(bet["upperBound"]),
+              publishTime: Number(bet["publishTime"]) * 1000,
+              lastBetTime: Number(bet["lastBetTime"] * 1000),
+              distributeTime: Number(bet["distributeTime"] * 1000),
+              // area: areas[Math.floor(Math.random() * areas.length)],
+              // category: categories[Math.floor(Math.random() * categories.length)],
+              area: areas[Number(bet["region"])],
+              category: categories[Number(bet["genre"])],
+              betType: "multipleChoice",
+              options: bet["choices"],
+              comments: comments,
+              isAnswerSet: bet["isAnswerSet"],
+              ownerId: bet["owner"],
+              voter: bet["voter"],
+              currentAmount: bet["currentAmount"],
+            };
+          });
+        console.log(hots);
         // console.log(validIds);
         let ownBets = [];
         let allBets = [];
+
         // let rewards = await InfoAPI.getVoterChoices(instance, accounts, bets);
         // console.log(rewards);
-        validIds.forEach((status, index) => {
+        console.log(statuses);
+        statuses.forEach((status, index) => {
           let tokens = [];
           bets[index]["currentChoices"].forEach((ele) => {
             tokens.push(Number(ele));
@@ -235,7 +285,7 @@ export default function Router() {
           });
 
           let bet = {
-            bet_id: Number(id),
+            bet_id: Number(validIds[index]),
             title: bets[index]["title"],
             lowerbound: Number(bets[index]["lowerBound"]),
             token: tokens,
@@ -256,19 +306,19 @@ export default function Router() {
             voter: bets[index]["voter"],
             currentAmount: bets[index]["currentAmount"],
           };
-          if (validIds[index] === "0" || validIds[index] === "2") {
-            ownBets.push({ ...bet, status: Number(validIds[index]) });
-            allBets.push({ ...bet, status: Number(validIds[index]) });
+          if (status === "0" || status === "2") {
+            ownBets.push({ ...bet, status: Number(status) });
+            allBets.push({ ...bet, status: Number(status) });
           } else {
-            allBets.push({ ...bet, status: Number(validIds[index]) });
+            allBets.push({ ...bet, status: Number(status) });
           }
           console.log(hots, id);
-          if (hots.includes(Number(id))) {
-            hotFinal.push({ ...bet, status: Number(validIds[index]) });
-          }
+          // if (hots.includes(Number(id))) {
+          //   hotFinal.push({ ...bet, status: Number(status) });
+          // }
         });
-        console.log(hotFinal);
-        setHotBets(hotFinal);
+        // console.log(hotFinal);
+        // setHotBets(hotFinal);
         let newPath = paths;
         Object.entries(newPath).map(([type, cards]) => {
           cards.map((ele) => {
@@ -316,6 +366,7 @@ export default function Router() {
                 ownInfo={ownInfo}
                 contract={contract}
                 accounts={accounts}
+                web3={web3}
               />
             </Route>
             <Route path="/home/member" exact>

@@ -4,13 +4,8 @@ import { DownOutlined } from "@ant-design/icons";
 import { areas, categories } from "../../config";
 import { Area } from "@ant-design/charts";
 
-const onClick = (e) => {
-  message.info(`Click on item ${e.domEvent.target.outerText}`);
-};
-
 export default function DropdownMenu({ type, value, handleClick }) {
   const onClick = (e) => {
-    message.info(`Click on item ${e.domEvent.target.outerText}`);
     handleClick(e.domEvent.target.outerText);
   };
   const areaMenu = () => (
