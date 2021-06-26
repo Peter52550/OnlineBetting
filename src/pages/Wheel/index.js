@@ -129,9 +129,10 @@ export default ({ contract, accounts, ownInfo, web3 }) => {
   const [loading, setLoading] = useState(true);
   useEffect(async () => {
     let jackPot = await InfoAPI.getJackpot(contract, accounts);
+    console.log(jackPot);
     setJackPot(jackPot);
     setLoading(false);
-  });
+  }, []);
   const handleSpinClick = async () => {
     if (ownInfo.member === "none") {
       message.info("加入會員才可抽獎喔");
