@@ -38,6 +38,7 @@ export default function CreateBetPage({
       formBetType: formBetType,
       formBetOptions: formBetOptions.filter((option) => option !== ""),
     });
+    history.push("/home");
   };
   const [formTitleName, setFormTitleName] = useState(TitleName);
   const [formLowerBound, setFormLowerBound] = useState();

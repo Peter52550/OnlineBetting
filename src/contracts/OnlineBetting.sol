@@ -59,7 +59,6 @@ contract OnlineBetting {
     Bet[] bets;
     mapping (address => MemberView) members;
     mapping (uint => mapping (address => uint[])) voterChoice;
-    mapping (uint => mapping (address => string[])) comments;
 
     //Modifiers
     //Valid bet modifier
@@ -231,14 +230,16 @@ contract OnlineBetting {
         return (ids, bets, statuses);
     }
 
-    function getHotBets() public view returns(Bet[] memory) {
-        Bet[] memory validBets = _getValidBets();
+    function getHotBets() public view returns(uint[] memory, Bet[] memory) {
+        uint[] memory ids;
+        Bet[] memory validBets;
+        (ids, validBets) = _getValidBets();
         Bet[] memory hotBets = new Bet[](_min(10, validBets.length));
-        _sortBets(validBets);
+        _sortBets(ids, validBets);
         for(uint i = 0; i < _min(10, validBets.length); ++i) {
             hotBets[i] = validBets[i];
         }
-        return hotBets;
+        return (ids, hotBets);
     }
 
     function getVoterChoices(uint _id) public view returns(uint[] memory) {
@@ -262,7 +263,7 @@ contract OnlineBetting {
         return members[msg.sender].reward;
     }
 
-    function _getValidBets() internal view returns(Bet[] memory) {
+    function _getValidBets() internal view returns(uint[] memory, Bet[] memory) {
         uint count;
         uint[] memory ids;
         (count, ids) = _getValidIds();
@@ -270,7 +271,7 @@ contract OnlineBetting {
         for(uint i = 0; i < count; i++) {
             validBets[i] = bets[ids[i]];
         }
-        return validBets;
+        return (ids, validBets);
     }
 
     function _getValidIds() internal view returns(uint, uint[] memory) {
@@ -331,11 +332,11 @@ contract OnlineBetting {
         return Genre.Other;
     }
 
-    function _sortBets(Bet[] memory _bets) internal pure {
-        if(_bets.length > 0) _quickSort(_bets, 0, _bets.length-1);
+    function _sortBets(uint[] memory ids, Bet[] memory _bets) internal pure {
+        if(_bets.length > 0) _quickSort(ids, _bets, 0, _bets.length-1);
     }
 
-    function _quickSort(Bet[] memory _bets, uint _init, uint _end) internal pure {
+    function _quickSort(uint[] memory ids, Bet[] memory _bets, uint _init, uint _end) internal pure {
         uint i = _init;
         uint j = _end;
         if(i >= j) return;
@@ -345,14 +346,15 @@ contract OnlineBetting {
             while (_isLargerThan(pivot, _bets[j])) j--;
             if (i <= j) {
                 (_bets[i], _bets[j]) = (_bets[j], _bets[i]);
+                (ids[i], ids[j]) = (ids[j], ids[i]);
                 i++;
                 j--;
             }
         }
         if (_init < j)
-            _quickSort(_bets, _init, j);
+            _quickSort(ids, _bets, _init, j);
         if (i < _end)
-            _quickSort(_bets, i, _end);
+            _quickSort(ids, _bets, i, _end);
     }
 
     function _isLargerThan(Bet memory _bet1, Bet memory _bet2) internal pure returns(bool) {

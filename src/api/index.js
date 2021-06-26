@@ -33,6 +33,7 @@ const wrapperGet = (getter) => {
 };
 export const InfoAPI = {
   getVoterChoices: async (contract, accounts, arr) => {
+    console.log(arr);
     let values = wrapperGet(
       getInfo(contract.methods.getVoterChoices, accounts, arr)
     );
@@ -195,7 +196,7 @@ export const AdderAPI = {
   spinWheel: async (contract, accounts, web3) => {
     let value = await contract.methods.spinWheel().send({
       from: accounts[0],
-      value: web3.utils.toWei(String(1 * 0.001)),
+      value: web3.utils.toWei(String(100 * 0.001)),
     });
     return value;
   },

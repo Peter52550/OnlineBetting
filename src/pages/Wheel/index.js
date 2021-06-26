@@ -70,12 +70,22 @@
 //   );
 // }
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Wheel } from "react-custom-roulette";
+import Loading from "../../components/Loading";
 import { InfoAPI, AdderAPI } from "../../api";
 import { message } from "antd";
 import "./wheel.css";
-const segments = ["1", "2", "3", "4", "5", "6", "7", "8"];
+const segments = [
+  "Sorry",
+  "ByeBye",
+  "haha_10",
+  "haha_20",
+  "haha_50",
+  "haha_100",
+  "haha_200",
+  "Jackpot",
+];
 const segColors = [
   "#EE4040",
   "#F0CF50",
@@ -115,42 +125,53 @@ const data = [
 export default ({ contract, accounts, ownInfo, web3 }) => {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
-
+  const [jackPot, setJackPot] = useState("");
+  const [loading, setLoading] = useState(true);
+  useEffect(async () => {
+    let jackPot = await InfoAPI.getJackpot(contract, accounts);
+    setJackPot(jackPot);
+    setLoading(false);
+  });
   const handleSpinClick = async () => {
     if (ownInfo.member === "none") {
       message.info("加入會員才可抽獎喔");
     } else {
       await AdderAPI.spinWheel(contract, accounts, web3);
-      let newPrizeNumber = await InfoAPI.getJackpot(contract, accounts);
+      let newPrizeNumber = await InfoAPI.getReward(contract, accounts);
       // const newPrizeNumber = Math.floor(Math.random() * data.length);
       setPrizeNumber(newPrizeNumber);
       setMustSpin(true);
     }
   };
   const getReward = async () => {
-    let reward = await InfoAPI.getReward(contract, accounts);
-    message.info(`恭喜您獲得${reward}, 您可以至您的錢包查收`);
+    message.info(`恭喜您獲得${segments[prizeNumber]}, 您可以至您的錢包查收`);
+    setMustSpin(false);
   };
   return (
     <div>
-      <div style={{ marginTop: "120px", marginLeft: 450 }}>
-        <Wheel
-          mustStartSpinning={mustSpin}
-          prizeNumber={prizeNumber}
-          data={data}
-          onStopSpinning={() => {
-            setMustSpin(false);
-          }}
-          fontSize={15}
-          radiusLineWidth={3}
-          radiusLineColor={"white"}
-          outerBorderColor={"#E176BB"}
-        />
+      {loading ? (
+        <Loading />
+      ) : (
+        <div style={{ marginTop: "120px", marginLeft: 500 }}>
+          <div class="jackpot">本期特獎：{jackPot}個哈哈幣</div>
+          <Wheel
+            mustStartSpinning={mustSpin}
+            prizeNumber={prizeNumber}
+            data={data}
+            onStopSpinning={() => {
+              getReward();
+            }}
+            fontSize={15}
+            radiusLineWidth={3}
+            radiusLineColor={"white"}
+            outerBorderColor={"#E176BB"}
+          />
 
-        <button class="button7" onClick={handleSpinClick}>
-          SPIN
-        </button>
-      </div>
+          <button class="button7" onClick={handleSpinClick}>
+            SPIN
+          </button>
+        </div>
+      )}
     </div>
   );
 };
