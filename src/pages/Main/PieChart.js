@@ -15,7 +15,7 @@ export default function PieChart({ cardAllBettings }) {
         )
       );
     });
-    setData(mapping);
+    setData(mapping.filter(({ value }) => value > 0));
   }, [cardAllBettings]);
   var config = {
     appendPadding: 50,

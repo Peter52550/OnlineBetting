@@ -5,13 +5,10 @@ import moment from "moment";
 import { Pie } from "@ant-design/charts";
 import { categories } from "../../config";
 
-export default function PieChart({ cardOwnBettings, menuText, setLeftData }) {
+export default function PieChart({ cardOwnBettings, menuText }) {
   const [data, setData] = useState([]);
   useEffect(() => {
-    console.log(cardOwnBettings);
-    console.log("hwhhjkgewjkgwejgewjgoweji");
     let datas;
-    console.log(categories);
     let mapping = categories.map((category) => ({ type: category, value: 0 }));
     datas = cardOwnBettings.filter(({ lastBetTime }) => {
       if (menuText === "1小時以內") {
@@ -32,8 +29,7 @@ export default function PieChart({ cardOwnBettings, menuText, setLeftData }) {
         )
       );
     });
-    setData(mapping);
-    setLeftData(mapping);
+    setData(mapping.filter(({ value }) => value > 0));
   }, [cardOwnBettings, menuText]);
 
   console.log(data);

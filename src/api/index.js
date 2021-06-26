@@ -32,15 +32,32 @@ const wrapperGet = (getter) => {
   }
 };
 export const InfoAPI = {
-  getIds: async (contract, accounts) => {
-    let values = await contract.methods.getIds().call({
+  getVoterChoices: async (contract, accounts, arr) => {
+    let values = wrapperGet(
+      getInfo(contract.methods.getVoterChoices, accounts, arr)
+    );
+    return values;
+  },
+  getJackpot: async (contract, accounts) => {
+    let values = await contract.methods.getJackpot().call({
       from: accounts[0],
     });
-    console.log(values);
+    return values;
+  },
+  getMemberView: async (contract, accounts) => {
+    let values = await contract.methods.getMemberView().call({
+      from: accounts[0],
+    });
     return values;
   },
   getBets: async (contract, accounts) => {
     let values = await contract.methods.getBets().call({
+      from: accounts[0],
+    });
+    return values;
+  },
+  getReward: async (contract, accounts) => {
+    let values = await contract.methods.getReward().call({
       from: accounts[0],
     });
     return values;
@@ -62,6 +79,13 @@ export const InfoAPI = {
     let values = await contract.methods.getComments(id).call({
       from: accounts[0],
     });
+    return values;
+  },
+  getIds: async (contract, accounts) => {
+    let values = await contract.methods.getIds().call({
+      from: accounts[0],
+    });
+    console.log(values);
     return values;
   },
   getTitles: (contract, accounts, arr) => {
@@ -165,6 +189,13 @@ export const AdderAPI = {
     let value = await contract.methods.setVIP().send({
       from: accounts[0],
       value: web3.utils.toWei(String(500 * 0.001)),
+    });
+    return value;
+  },
+  spinWheel: async (contract, accounts, web3) => {
+    let value = await contract.methods.spinWheel().send({
+      from: accounts[0],
+      value: web3.utils.toWei(String(1 * 0.001)),
     });
     return value;
   },

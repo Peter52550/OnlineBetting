@@ -16,7 +16,13 @@ export default function ColumnChart({ cardOwnBettings }) {
         )
       );
     });
-    setData(mapping);
+    setData(
+      mapping
+        .sort(function (a, b) {
+          return b.value - a.value;
+        })
+        .slice(0, 5)
+    );
   }, [cardOwnBettings]);
   var paletteSemanticRed = "#F4664A";
   var brandColor = "#5B8FF9";

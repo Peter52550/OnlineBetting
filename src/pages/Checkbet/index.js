@@ -47,6 +47,7 @@ export default function CheckBet(props) {
     contract,
     accounts,
     web3,
+    ownInfo,
   } = props;
   const history = useHistory();
   const [token, setToken] = useState([]);
@@ -60,8 +61,7 @@ export default function CheckBet(props) {
     let bet = cardOwnBettings.find(({ bet_id }) => bet_id === Number(id));
     if (bet === undefined) {
       bet = cardAllBettings.find(({ bet_id }) => bet_id === Number(id));
-      if (bet.status === 1) setMode("熱門");
-      else setMode("全部");
+      setMode("全部");
     } else {
       setMode("自己");
     }
@@ -77,9 +77,7 @@ export default function CheckBet(props) {
     let bet = betInfo;
     let arr = bet.token;
     tokenArray.map((value, index) => {
-      console.log(Number(bet.token[index]), value);
       if (value != null) {
-        // bet.token[index] = 1;
         arr[index] = Number(betInfo.token[index]) + Number(value);
         console.log(bet.token[index]);
         bet.ownTokens[index] = Number(betInfo.ownTokens[index]) + Number(value);
@@ -123,6 +121,20 @@ export default function CheckBet(props) {
       betInfo.options.indexOf(answer)
     );
     let e = await AdderAPI.distributeMoney(contract, accounts, betInfo.bet_id);
+    let bettings;
+    let bet = betInfo;
+    bet.isAnswerSet = true;
+    if (mode === "自己") {
+      bettings = cardOwnBettings.filter(
+        ({ bet_id }) => bet_id !== betInfo.bet_id
+      );
+      handleBettingChange([bet, ...bettings], "自己");
+    } else if (mode === "全部") {
+      bettings = cardOwnBettings.filter(
+        ({ bet_id }) => bet_id !== betInfo.bet_id
+      );
+      handleBettingChange([bet, ...bettings], "全部");
+    }
   };
   // const handleDistributeMoney = async () => {
 
@@ -163,7 +175,7 @@ export default function CheckBet(props) {
       ];
 
       handleBettingChange(bettings);
-    } else if (mode === "熱門") {
+    } else if (mode === "全部") {
       bettings = [
         bet,
         ...cardAllBettings.filter(
@@ -248,7 +260,8 @@ export default function CheckBet(props) {
         <div style={{ display: "flex" }}>
           <div className={styles.title}>下注</div>
           {Object.keys(betInfo).length !== 0 &&
-          Number(betInfo.lastBetTime) > Number(Date.now()) ? (
+          Number(betInfo.lastBetTime) > Number(Date.now()) &&
+          ownInfo.member !== "none" ? (
             <Button
               className={styles.bidbutton}
               disabled={
@@ -287,7 +300,9 @@ export default function CheckBet(props) {
           ) : (
             ""
           )}
-          {Number(betInfo.publishTime) < Number(Date.now()) ? (
+          {Number(betInfo.publishTime) < Number(Date.now()) &&
+          betInfo.status === "0" &&
+          !betInfo.isAnswerSet ? (
             <Button
               className={styles.bidbutton}
               onClick={() => confirm(() => handleSetAnswer(), 1)}
@@ -298,7 +313,9 @@ export default function CheckBet(props) {
           ) : (
             ""
           )}
-          {Number(betInfo.publishTime) < Number(Date.now()) ? (
+          {Number(betInfo.publishTime) < Number(Date.now()) &&
+          betInfo.status === "0" &&
+          !betInfo.isAnswerSet ? (
             <div className={styles.comment}>
               可以點選每個選項左邊的icon做為答案喔~
             </div>
@@ -332,42 +349,52 @@ export default function CheckBet(props) {
                 <div className={styles.icon_word} style={{ marginLeft: 32 }}>
                   自己下注金額: {betInfo.ownTokens[index]}
                 </div>
-                <Col span={6}>
-                  <Input
-                    className={styles.input}
-                    placeholder="請輸入下注金額"
-                    size="large"
-                    bordered={false}
-                    value={token[index]}
-                    disabled={Number(betInfo.lastBetTime) < Number(Date.now())}
-                    onChange={(e) => handleTokenChange(e, index)}
-                  />
-                </Col>
+                {ownInfo.member === "none" ? (
+                  ""
+                ) : (
+                  <Col span={6}>
+                    <Input
+                      className={styles.input}
+                      placeholder="請輸入下注金額"
+                      size="large"
+                      bordered={false}
+                      value={token[index]}
+                      disabled={
+                        Number(betInfo.lastBetTime) < Number(Date.now())
+                      }
+                      onChange={(e) => handleTokenChange(e, index)}
+                    />
+                  </Col>
+                )}
               </div>
             ))
           : ""}
         <Divider />
         <div>
           <div className={styles.title}>評價</div>
-          <Row>
-            <Col span={15}>
-              <Input
-                className={styles.input}
-                placeholder="留下您的評論吧"
-                size="large"
-                value={message}
-                // disabled={Number(betInfo.lastBetTime) < Number(Date.now())}
-                onChange={(e) => handleMessage(e)}
-              />
-            </Col>
-            <Button
-              className={styles.button}
-              onClick={() => confirm(() => addComment(), 2)}
-              disabled={message === ""}
-            >
-              發布
-            </Button>
-          </Row>
+          {ownInfo.member === "none" ? (
+            ""
+          ) : (
+            <Row>
+              <Col span={15}>
+                <Input
+                  className={styles.input}
+                  placeholder="留下您的評論吧"
+                  size="large"
+                  value={message}
+                  // disabled={Number(betInfo.lastBetTime) < Number(Date.now())}
+                  onChange={(e) => handleMessage(e)}
+                />
+              </Col>
+              <Button
+                className={styles.button}
+                onClick={() => confirm(() => addComment(), 2)}
+                disabled={message === ""}
+              >
+                發布
+              </Button>
+            </Row>
+          )}
           {betInfo.comments.map((comment) => (
             <div className={styles.messageWrapper}>
               <div style={{ marginRight: 8 }}>
