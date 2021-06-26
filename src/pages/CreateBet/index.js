@@ -9,8 +9,11 @@ import styles from "./index.module.css";
 
 // components
 import BetInfo from "./BetInfo";
-import { Modal, Row, Alert } from "antd";
+import { Modal, Row, Alert, message } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
+
+// config
+import { memberships } from "../../config";
 
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
 const ReachableContext = React.createContext();
@@ -19,6 +22,7 @@ export default function CreateBetPage({
   publishTime = Date.now(),
   lastBetTime = Date.now(),
   TitleName = "",
+  ownInfo,
 }) {
   const history = useHistory();
   const index = 44444;
@@ -34,7 +38,6 @@ export default function CreateBetPage({
       formBetType: formBetType,
       formBetOptions: formBetOptions.filter((option) => option !== ""),
     });
-    history.push("/home");
   };
   const [formTitleName, setFormTitleName] = useState(TitleName);
   const [formLowerBound, setFormLowerBound] = useState();
@@ -49,7 +52,16 @@ export default function CreateBetPage({
   const [allSet, setAllSet] = useState(true);
   const handleTitleNameChange = (e) => setFormTitleName(e.target.value);
   const handleLowerBoundChange = (val) => setFormLowerBound(val);
-  const handleUpperBoundChange = (val) => setFormUpperBound(val);
+  const handleUpperBoundChange = (val) => {
+    if (formUpperBound > memberships[ownInfo["member"]].upperbound) {
+      message.info(
+        `${memberships[ownInfo["member"]].tooltip}的最高上限是${
+          memberships[ownInfo["member"]].upperbound
+        }喔!`
+      );
+    }
+    setFormUpperBound(val);
+  };
   const handlePublishTimeChange = (publishTime, publishTimeString) => {
     setFormPublishTime(
       parseInt(moment(publishTimeString, dateFormat).format("x"))
@@ -85,7 +97,6 @@ export default function CreateBetPage({
   const removeClick = (i) => {
     setFormBetOptions(formBetOptions.filter((option, index) => index !== i));
   };
-  console.log("publish: ", formPublishTime, "lastbet: ", formLastBetTime);
 
   const handleConfirm = () => {
     if (
@@ -99,16 +110,21 @@ export default function CreateBetPage({
       formBetType &&
       formBetOptions
     ) {
-      setAllSet(true);
-      Modal.confirm({
-        title: "Confirm",
-        icon: <ExclamationCircleOutlined />,
-        content: "確認發布嗎？？",
-        okText: "確認",
-        cancelText: "取消",
-        onOk: () => handleBet(),
-      });
+      if (formUpperBound > memberships[ownInfo["member"]].upperbound) {
+        message.info("再檢查一下上限喔");
+      } else {
+        setAllSet(true);
+        Modal.confirm({
+          title: "Confirm",
+          icon: <ExclamationCircleOutlined />,
+          content: "確認發布嗎？？",
+          okText: "確認",
+          cancelText: "取消",
+          onOk: () => handleBet(),
+        });
+      }
     } else {
+      message.info("有東西漏掉喔");
       setAllSet(false);
       setTimeout(() => {
         setAllSet(true);
@@ -117,11 +133,6 @@ export default function CreateBetPage({
   };
   return (
     <div className={styles.container}>
-      {!allSet ? (
-        <Alert message="你有些東西沒填喔" type="error" showIcon />
-      ) : (
-        ""
-      )}
       <BetInfo
         formTitleName={formTitleName}
         formLowerBound={formLowerBound}
@@ -144,9 +155,13 @@ export default function CreateBetPage({
         addClick={addClick}
         removeClick={removeClick}
       />
-      <button className={styles.btnThree} onClick={handleConfirm}>
-        <div>發布賭局</div>
-      </button>
+      {ownInfo.member === "none" ? (
+        ""
+      ) : (
+        <button className={styles.btnThree} onClick={handleConfirm}>
+          <div>發布賭局</div>
+        </button>
+      )}
       <button className={styles.btnThree} onClick={() => history.goBack()}>
         <div>返回</div>
       </button>

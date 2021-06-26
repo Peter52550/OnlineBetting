@@ -7,18 +7,38 @@ export const memberships = {
   none: {
     src: none,
     tooltip: "尚無會員",
+    over: 0,
+    active: 0,
+    nextLevel: "none",
+    upperbound: 0,
+    people: 0,
   },
   copper: {
     src: cop,
     tooltip: "古銅會員",
+    over: 0,
+    active: 0,
+    nextLevel: "golden",
+    upperbound: 2500,
+    people: 60,
   },
   golden: {
     src: gold,
     tooltip: "黃金會員",
+    over: 10000,
+    active: 0,
+    nextLevel: "diamond",
+    upperbound: 8000,
+    people: 80,
   },
   diamond: {
     src: diam,
     tooltip: "鑽石會員",
+    over: 30000,
+    active: 0,
+    nextLevel: "diamond",
+    upperbound: 20000,
+    people: 100,
   },
 };
 export const areas = [

@@ -32,6 +32,7 @@ export default function MainPage({
   cardAllBettings,
   cardOwnBettings,
   ownInfo,
+  hotBets,
 }) {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
@@ -99,7 +100,7 @@ export default function MainPage({
     setMode("");
     setCurrentBets([]);
   };
-  // console.log(currentBets);
+  console.log(hotBets);
   return (
     <div style={{ backgroundColor: "#fdfdfd" }}>
       {/*<div
@@ -209,7 +210,7 @@ export default function MainPage({
           <PieChart cardAllBettings={cardAllBettings} />
         </div>
         <div className={styles.bar}>
-          <BarChart />
+          <BarChart cardAllBettings={cardAllBettings} />
         </div>
       </div>
       <div className={styles.nav_header}>
@@ -233,14 +234,41 @@ export default function MainPage({
           <div style={{ display: "flex" }}>
             <div className={styles.title}>您所創建的賭局</div>
           </div>
-          {cardOwnBettings.length === 0 ? (
+          {cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet).length ===
+          0 ? (
             <div className={styles.text}>您尚未創建賭局喔</div>
           ) : (
-            <CardList cards={cardOwnBettings} />
+            <CardList
+              cards={cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet)}
+            />
           )}
           <br />
-          <div className={styles.title}>熱門Top5</div>
-          <CardList cards={cardAllBettings} />
+          {hotBets.length > 0 ? (
+            <div className={styles.title}>熱門賭局</div>
+          ) : (
+            ""
+          )}
+          {hotBets.length > 0 ? (
+            <CardList
+              cards={hotBets.filter(({ isAnswerSet }) => !isAnswerSet)}
+            />
+          ) : (
+            ""
+          )}
+          {cardAllBettings.filter(({ isAnswerSet }) => !isAnswerSet).length >
+          0 ? (
+            <div className={styles.title}>全部賭局</div>
+          ) : (
+            ""
+          )}
+          {cardAllBettings.filter(({ isAnswerSet }) => !isAnswerSet).length >
+          0 ? (
+            <CardList
+              cards={cardAllBettings.filter(({ isAnswerSet }) => !isAnswerSet)}
+            />
+          ) : (
+            ""
+          )}
           <SiftModal
             isModalVisible={isModalVisible}
             handleCancel={handleCancel}
@@ -265,7 +293,9 @@ export default function MainPage({
             </div>
           ) : (
             <div>
-              {currentBets.filter(({ status }) => status === 0).length > 0 ? (
+              {currentBets.filter(
+                ({ status, isAnswerSet }) => status === 0 && !isAnswerSet
+              ).length > 0 ? (
                 <>
                   <div className={styles.title}>您所創建的賭局</div>
                   <CardList
@@ -275,9 +305,12 @@ export default function MainPage({
               ) : (
                 ""
               )}
-              {currentBets.filter(({ status }) => status === 0).length > 0 ? (
+
+              {currentBets.filter(
+                ({ status, isAnswerSet }) => status === 1 && !isAnswerSet
+              ).length > 0 ? (
                 <>
-                  <div className={styles.title}>熱門Top5</div>
+                  <div className={styles.title}>全部賭局</div>
                   <CardList
                     cards={currentBets.filter(({ status }) => status === 0)}
                   />
