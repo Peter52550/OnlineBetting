@@ -9,8 +9,8 @@ import { areas, categories } from "../../config";
 
 const labels = [
   {
-    label: "1小時以前",
-    value: 1,
+    label: "全部",
+    value: 0,
   },
   {
     label: "5小時以前",
@@ -39,11 +39,14 @@ export default function BarChart({ cardAllBettings }) {
       value: 0,
     }));
     let mapping = [];
+    console.log(labels);
     labels.forEach(({ label, value }) => {
       let bets = cardAllBettings.filter(({ distributeTime }) =>
-        MoreThanSomeTimeAfter(new Date(distributeTime), value)
+        MoreThanSomeTimeAgo(new Date(distributeTime), value)
       );
+      console.log(bets);
       bets.forEach((bet) => {
+        console.log(bet);
         categoryMapping.find((map) => map.type === bet.category).value +=
           Number(
             bet.ownTokens.reduce(
@@ -51,8 +54,6 @@ export default function BarChart({ cardAllBettings }) {
               0
             )
           );
-      });
-      bets.forEach((bet) => {
         areaMapping.find((map) => map.type === bet.area).value += Number(
           bet.ownTokens.reduce(
             (acc, curValue) => Number(acc) + Number(curValue),
@@ -68,23 +69,24 @@ export default function BarChart({ cardAllBettings }) {
         Math,
         areaMapping.map(({ value }) => value)
       );
+      console.log(maxCategory, maxArea);
       mapping.push({
         label: label,
-        type: categoryMapping.find(({ value }) => value === maxCategory),
+        type: categoryMapping.find(({ value }) => value === maxCategory).type,
         value: maxCategory,
       });
       mapping.push({
         label: label,
-        type: areaMapping.find(({ value }) => value === maxArea),
+        type: areaMapping.find(({ value }) => value === maxArea).type,
         value: maxArea,
       });
-      setData(mapping);
+      console.log(mapping);
     });
-
-    setData(mapping.filter(({ value }) => value > 0));
+    console.log(mapping);
+    setData(mapping);
   }, [cardAllBettings]);
 
-  const MoreThanSomeTimeAfter = (date, num) =>
+  const MoreThanSomeTimeAgo = (date, num) =>
     moment(date).isBefore(moment().subtract(num, "hours"));
   var config = {
     data: data,
