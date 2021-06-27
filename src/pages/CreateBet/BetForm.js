@@ -18,11 +18,11 @@ import DropdownMenu from "./Dropdown";
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
 function disabledDate(current) {
   // Can not select days before today and today
-  // return current && current < moment().endOf("day");
+  return current < moment().startOf("day");
 }
 function disabledDateTime() {
   return {
-    disabledHours: () => range(0, 24).splice(4, 20),
+    // disabledHours: () => range(0, 24).splice(4, 20),
     // disabledMinutes: () => range(30, 60),
     // disabledSeconds: () => [55, 56],
   };

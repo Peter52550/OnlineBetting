@@ -54,7 +54,7 @@ export default function CreateBetPage({
   const handleTitleNameChange = (e) => setFormTitleName(e.target.value);
   const handleLowerBoundChange = (val) => setFormLowerBound(val);
   const handleUpperBoundChange = (val) => {
-    if (formUpperBound > memberships[ownInfo["member"]].upperbound) {
+    if (val > memberships[ownInfo["member"]].upperbound) {
       message.info(
         `${memberships[ownInfo["member"]].tooltip}的最高上限是${
           memberships[ownInfo["member"]].upperbound
@@ -113,6 +113,8 @@ export default function CreateBetPage({
     ) {
       if (formUpperBound > memberships[ownInfo["member"]].upperbound) {
         message.info("再檢查一下上限喔");
+      } else if (formPublishTime < formLastBetTime) {
+        message.info("公佈時間要比最後下賭時間晚喔");
       } else {
         setAllSet(true);
         Modal.confirm({

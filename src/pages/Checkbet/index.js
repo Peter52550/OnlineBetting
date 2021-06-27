@@ -66,8 +66,6 @@ export default function CheckBet(props) {
       setMode("自己");
     }
     let coms = await InfoAPI.getComments(contract, web3, id);
-    console.log(coms);
-    console.log(bet);
     setBetInfo(bet);
     setToken(Array(bet.options.length));
     setLoading(false);
@@ -79,11 +77,10 @@ export default function CheckBet(props) {
     tokenArray.map((value, index) => {
       if (value != null) {
         arr[index] = Number(betInfo.token[index]) + Number(value);
-        console.log(bet.token[index]);
         bet.ownTokens[index] = Number(betInfo.ownTokens[index]) + Number(value);
       }
     });
-    let _ = await AdderAPI.addMoney(
+    let e = await AdderAPI.addMoney(
       contract,
       accounts,
       web3,
@@ -102,7 +99,7 @@ export default function CheckBet(props) {
     bettings.unshift(bet);
     handleBettingChange(bettings, mode);
     setToken(Array(betInfo.options.length).fill(""));
-    message.info("下注成功!");
+    AntMessage.info("下注成功!");
   };
   const handleTokenChange = (e, i) => {
     let newToken = [...token];
@@ -136,6 +133,7 @@ export default function CheckBet(props) {
       );
       handleBettingChange([bet, ...bettings], "全部");
     }
+    AntMessage.info("設定成功!");
   };
   // const handleDistributeMoney = async () => {
 
@@ -185,15 +183,9 @@ export default function CheckBet(props) {
       ];
       handleBettingChange(bettings);
     }
-    console.log(bettings);
     setMessage("");
     AntMessage.info("發佈成功!");
   };
-  console.log(
-    Number(betInfo.lastBetTime),
-    Date.now(),
-    Number(betInfo.lastBetTime) > Date.now()
-  );
   return loading ? (
     <div>
       <Loading />
@@ -302,7 +294,7 @@ export default function CheckBet(props) {
             ""
           )}
           {Number(betInfo.publishTime) < Number(Date.now()) &&
-          betInfo.status === "0" &&
+          (betInfo.status === 0 || betInfo.status === 2) &&
           !betInfo.isAnswerSet ? (
             <Button
               className={styles.bidbutton}
@@ -315,7 +307,7 @@ export default function CheckBet(props) {
             ""
           )}
           {Number(betInfo.publishTime) < Number(Date.now()) &&
-          betInfo.status === "0" &&
+          (betInfo.status === 0 || betInfo.status === 2) &&
           !betInfo.isAnswerSet ? (
             <div className={styles.comment}>
               可以點選每個選項左邊的icon做為答案喔~

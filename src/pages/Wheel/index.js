@@ -129,7 +129,6 @@ export default ({ contract, accounts, ownInfo, web3 }) => {
   const [loading, setLoading] = useState(true);
   useEffect(async () => {
     let jackPot = await InfoAPI.getJackpot(contract, accounts);
-    console.log(jackPot);
     setJackPot(jackPot);
     setLoading(false);
   }, []);

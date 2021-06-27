@@ -10,10 +10,13 @@ import "./Card.css";
 
 //images
 import titan from "../../images/titan.jpeg";
+import ramen from "../../images/ramen.jpg";
+import ahong from "../../images/ahong.jpg";
+import bonk from "../../images/bonk.jpg";
 
 // components
 import { AimOutlined, CodeOutlined } from "@ant-design/icons";
-import { Card } from "antd";
+import { Card, Badge } from "antd";
 import { Typography, Progress } from "antd";
 
 const { Text } = Typography;
@@ -27,6 +30,9 @@ export default function Cards({
   area,
   category,
   handleClick,
+  isAnswerSet,
+  publishTime,
+  stat,
 }) {
   const history = useHistory();
   const handleCardClick = () => {
@@ -53,63 +59,70 @@ export default function Cards({
   const percentage =
     (total * 100) / (Number(upperbound) === 0 ? 1 : Number(upperbound));
   const max_acc = Math.max.apply(Math, token) / Number(upperbound);
-
+  const src = stat === "全部" ? ahong : bonk;
   return (
-    <Card
-      hoverable
-      style={{ width: 240 }}
-      className="cover"
-      cover={<img alt="example" src={titan} />}
-      onClick={handleCardClick}
+    <Badge
+      count={!isAnswerSet && publishTime < new Date().getTime() ? 1 : 0}
+      showZero={false}
     >
-      {/*<Meta
+      <div>
+        <Card
+          hoverable
+          style={{ width: 350 }}
+          className="cover"
+          cover={<img alt="example" src={src} />}
+          onClick={handleCardClick}
+        >
+          {/*<Meta
       // title={title}
       // description=""
       // className="ant-card-meta-title"
       // style={{ color: "#858585", fontSize: 35 }}
       />*/}
-      <div style={{ display: "flex" }}>
-        <div className={styles.title}>{title}</div>
-        <div className={styles.flex}>
-          <AimOutlined className={styles.icon} />
-          <div className={styles.icon_word}>
-            {area} {category}
+          <div style={{ display: "flex" }}>
+            <div className={styles.title}>{title}</div>
+            <div className={styles.flex}>
+              <AimOutlined className={styles.icon} />
+              <div className={styles.icon_word}>
+                {area} {category}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div>
-          <Text className={clsx(styles.card_account, styles.gray)}>
-            累積賭注
-          </Text>
-          <Text className={clsx(styles.card_account, styles.blue)}>
-            {haveReward && accumulate}
-          </Text>
-        </div>
-        {upperbound === 0 ? (
-          <Text className={clsx(styles.card_account, styles.gray)}>
-            金額無上限
-          </Text>
-        ) : (
-          <div>
-            <Text className={clsx(styles.card_account, styles.gray)}>
-              距離頂金
-            </Text>
-            <Text className={clsx(styles.card_account, styles.blue)}>
-              {haveReward && distance}
-            </Text>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div>
+              <Text className={clsx(styles.card_account, styles.gray)}>
+                累積賭注
+              </Text>
+              <Text className={clsx(styles.card_account, styles.blue)}>
+                {haveReward && accumulate}
+              </Text>
+            </div>
+            {upperbound === 0 ? (
+              <Text className={clsx(styles.card_account, styles.gray)}>
+                金額無上限
+              </Text>
+            ) : (
+              <div>
+                <Text className={clsx(styles.card_account, styles.gray)}>
+                  距離頂金
+                </Text>
+                <Text className={clsx(styles.card_account, styles.blue)}>
+                  {haveReward && distance}
+                </Text>
+              </div>
+            )}
           </div>
-        )}
+          <Progress
+            percent={percentage}
+            showInfo={false}
+            success={{ percent: Number(max_acc) * 100, strokeColor: "#e29871" }}
+            // status="active"
+            strokeColor="#0058A3"
+            trailColor="#D2D7DC"
+          />
+        </Card>
       </div>
-      <Progress
-        percent={percentage}
-        showInfo={false}
-        success={{ percent: Number(max_acc) * 100, strokeColor: "#e29871" }}
-        // status="active"
-        strokeColor="#0058A3"
-        trailColor="#D2D7DC"
-      />
-    </Card>
+    </Badge>
   );
 }
 

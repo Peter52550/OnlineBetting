@@ -1,6 +1,11 @@
+/* .cover .ant-card-cover {
+  width: 200px;
+} */
 .cover .ant-card-cover img {
   border-radius: 20px 20px 0 0;
+  height: 300px;
 }
+
 .cover .ant-card-body {
   padding: 8px;
   padding-top: 16px;

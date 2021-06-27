@@ -39,7 +39,7 @@ export default function Rules({ setLoading, finish }) {
   ];
   return (
     <div className={styles.root}>
-      {/*<div style={{ height: 500 }}>
+      <div style={{ height: 700 }}>
         <Plx
           tagName="h1"
           className={styles.title}
@@ -115,19 +115,20 @@ export default function Rules({ setLoading, finish }) {
             style={{ fontSize: 70 }}
           >
             <div>Rule 3 </div>
-            <div>咱們和和氣氣生財 </div>
+            <div>Bet as much </div>
+            <div>as you can </div>
           </Plx>
         </div>
-      </div>*/}
-      {/*<Plx tagName="h1" className={styles.rule5} parallaxData={textData5}>*/}
-      <div
-        className={styles.center}
-        style={{ fontSize: 70, cursor: "pointer", color: "#dddddd" }}
-        onClick={redirect}
-      >
-        Enter the Game
       </div>
-      {/*</Plx>*/}
+      <Plx tagName="h1" className={styles.rule5} parallaxData={textData5}>
+        <div
+          className={styles.center}
+          style={{ fontSize: 70, cursor: "pointer", color: "#dddddd" }}
+          onClick={redirect}
+        >
+          Enter the Game
+        </div>
+      </Plx>
     </div>
   );
 }
@@ -147,10 +148,10 @@ const textData5 = [
 const textData4 = [
   {
     start: "self",
-    duration: "80vh",
+    duration: "70vh",
     properties: [
       {
-        startValue: 80,
+        startValue: 70,
         endValue: 0,
         unit: "vh",
         property: "translateX",
@@ -198,7 +199,7 @@ const textData3 = [
       },
       {
         startValue: 0,
-        endValue: 50,
+        endValue: 60,
         unit: "vh",
         property: "translateY",
       },

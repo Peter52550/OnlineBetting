@@ -33,7 +33,6 @@ const wrapperGet = (getter) => {
 };
 export const InfoAPI = {
   getVoterChoices: async (contract, accounts, arr) => {
-    console.log(arr);
     let values = wrapperGet(
       getInfo(contract.methods.getVoterChoices, accounts, arr)
     );
@@ -64,7 +63,6 @@ export const InfoAPI = {
     return values;
   },
   getHotBets: async (contract, accounts) => {
-    console.log("hi");
     let values = await contract.methods.getHotBets().call({
       from: accounts[0],
     });
@@ -118,7 +116,6 @@ export const InfoAPI = {
     let values = wrapperGet(
       getInfo(contract.methods.getCurrentAmount, accounts, arr[0])
     );
-    console.log("currentAmounts: ", values);
     return values;
   },
   getAddressAmounts: async (contract, accounts, id) => {

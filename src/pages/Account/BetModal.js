@@ -9,7 +9,6 @@ import { CloseOutlined } from "@ant-design/icons";
 
 const Card = (props) => {
   const { bet } = props;
-  console.log(bet);
   return (
     <div>
       <div style={{ display: "flex", textAlign: "center" }}>
@@ -23,7 +22,10 @@ const Card = (props) => {
           /{bet.upperbound}
         </div>
       </div>
-      <div className="small">開盤日期: </div>
+      <div className="small">
+        開盤日期: {new Date(bet.distributeTime).getMonth() + 1}/
+        {new Date(bet.distributeTime).getDate()}
+      </div>
       <div className="small">
         結束日期: {new Date(bet.lastBetTime).getMonth() + 1}/
         {new Date(bet.lastBetTime).getDate()}

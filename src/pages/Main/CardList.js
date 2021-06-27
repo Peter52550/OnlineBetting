@@ -10,7 +10,7 @@ import styles from "./CardList.module.css";
 import Cards from "./Card";
 import { Row, Col } from "antd";
 
-export default function CardList({ cards }) {
+export default function CardList({ cards, ownInfo, stat }) {
   const [selectedValue, setSelectedValue] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -35,8 +35,10 @@ export default function CardList({ cards }) {
               upperbound,
               area,
               category,
+              isAnswerSet,
+              publishTime,
             }) => (
-              <Col key={bet_id} span={8}>
+              <Col key={bet_id} span={8} style={{ marginBottom: 48 }}>
                 <Cards
                   bet_id={bet_id}
                   title={title}
@@ -45,6 +47,10 @@ export default function CardList({ cards }) {
                   upperbound={upperbound}
                   area={area}
                   category={category}
+                  ownInfo={ownInfo}
+                  isAnswerSet={isAnswerSet}
+                  publishTime={publishTime}
+                  stat={stat}
                 />
               </Col>
             )
