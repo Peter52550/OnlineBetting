@@ -9,10 +9,7 @@ export default function PieChart({ cardAllBettings }) {
     let mapping = areas.map((area) => ({ type: area, value: 0 }));
     cardAllBettings.forEach((bet) => {
       mapping.find((map) => map.type === bet.area).value += Number(
-        bet.ownTokens.reduce(
-          (acc, curValue) => Number(acc) + Number(curValue),
-          0
-        )
+        bet.token.reduce((acc, curValue) => Number(acc) + Number(curValue), 0)
       );
     });
     setData(mapping.filter(({ value }) => value > 0));

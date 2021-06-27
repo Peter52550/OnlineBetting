@@ -49,7 +49,6 @@ export default function SiftModal({
               value={String(lower[0])}
               bordered={false}
               onChange={(e) => {
-                console.log(e.target.value);
                 handleLowerValueChange([
                   isNaN(e.target.value) ? 0 : Number(e.target.value),
                   Number(lower[1]),
@@ -96,7 +95,6 @@ export default function SiftModal({
               value={String(upper[0])}
               bordered={false}
               onChange={(e) => {
-                console.log(e.target.value);
                 handleUpperValueChange([
                   isNaN(e.target.value) ? 0 : Number(e.target.value),
                   Number(upper[1]),

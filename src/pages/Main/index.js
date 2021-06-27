@@ -20,6 +20,10 @@ import {
   LaptopOutlined,
   NotificationOutlined,
 } from "@ant-design/icons";
+import Loading from "../../components/Loading";
+
+// api
+import { InfoAPI } from "../../api";
 
 // config
 import { memberships } from "../../config";
@@ -33,9 +37,13 @@ export default function MainPage({
   cardOwnBettings,
   ownInfo,
   hotBets,
+  setHotBets,
+  contract,
+  accounts,
 }) {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [currentBets, setCurrentBets] = useState([]);
   const [mode, setMode] = useState("");
   // modal
@@ -69,7 +77,7 @@ export default function MainPage({
           inRange(bet.upperbound, upper[0], upper[1]) &&
           title === ""
             ? true
-            : bet.title.includes(handleMenuClick)
+            : bet.title.includes(title) && !bet.isAnswerSet
         )
       );
     }
@@ -100,19 +108,27 @@ export default function MainPage({
     setMode("");
     setCurrentBets([]);
   };
-  console.log(hotBets);
-  return (
+  useEffect(async () => {
+    let hotbets = await InfoAPI.getHotBets(contract, accounts);
+    let hotbetIds = hotbets[0];
+    let hotFinal = [];
+    let allBetIds = cardAllBettings.map(({ bet_id }) => String(bet_id));
+    cardAllBettings.forEach((bet, index) => {
+      if (allBetIds.includes(hotbetIds[index]) && !bet.isAnswerSet) {
+        hotFinal.push(bet);
+      }
+    });
+    if (hotFinal.length > 5) {
+      setHotBets(hotFinal.slice(0, 5));
+    } else {
+      setHotBets(hotFinal);
+    }
+    setPageLoading(false);
+  }, []);
+  return pageLoading ? (
+    <Loading />
+  ) : (
     <div style={{ backgroundColor: "#fdfdfd" }}>
-      {/*<div
-        style={{
-          width: "60%",
-          height: "20%",
-          marginLeft: "20%",
-        }}
-      >
-        <DemoLine />
-      </div>*/}
-
       <div className={styles.top_holder} onClick={backToMain}>
         <Button className={styles.top_icon}>
           <img
@@ -213,6 +229,16 @@ export default function MainPage({
           <BarChart cardAllBettings={cardAllBettings} />
         </div>
       </div>
+      <div
+        style={{
+          display: "flex",
+          paddingTop: 30,
+          justifyContent: "space-around",
+        }}
+      >
+        <div>各地區交易比例</div>
+        <div>各類別交易比例</div>
+      </div>
       <div className={styles.nav_header}>
         <div className={styles.nav_holder}>
           <div style={{ borderRight: "1px solid #808080" }}>
@@ -240,6 +266,8 @@ export default function MainPage({
           ) : (
             <CardList
               cards={cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet)}
+              ownInfo={ownInfo}
+              stat=""
             />
           )}
           <br />
@@ -251,6 +279,8 @@ export default function MainPage({
           {hotBets.length > 0 ? (
             <CardList
               cards={hotBets.filter(({ isAnswerSet }) => !isAnswerSet)}
+              ownInfo={ownInfo}
+              stat=""
             />
           ) : (
             ""
@@ -265,6 +295,8 @@ export default function MainPage({
           0 ? (
             <CardList
               cards={cardAllBettings.filter(({ isAnswerSet }) => !isAnswerSet)}
+              ownInfo={ownInfo}
+              stat="全部"
             />
           ) : (
             ""
@@ -294,25 +326,32 @@ export default function MainPage({
           ) : (
             <div>
               {currentBets.filter(
-                ({ status, isAnswerSet }) => status === 0 && !isAnswerSet
+                ({ status, isAnswerSet }) =>
+                  (status === 0 || status === 2) && !isAnswerSet
               ).length > 0 ? (
                 <>
                   <div className={styles.title}>您所創建的賭局</div>
                   <CardList
-                    cards={currentBets.filter(({ status }) => status === 0)}
+                    cards={currentBets.filter(
+                      ({ status, isAnswerSet }) =>
+                        status === 0 || (status === 2 && !isAnswerSet)
+                    )}
+                    stat=""
                   />{" "}
                 </>
               ) : (
                 ""
               )}
 
-              {currentBets.filter(
-                ({ status, isAnswerSet }) => status === 1 && !isAnswerSet
-              ).length > 0 ? (
+              {currentBets.filter(({ status, isAnswerSet }) => !isAnswerSet)
+                .length > 0 ? (
                 <>
                   <div className={styles.title}>全部賭局</div>
                   <CardList
-                    cards={currentBets.filter(({ status }) => status === 0)}
+                    cards={currentBets.filter(
+                      ({ status, isAnswerSet }) => !isAnswerSet
+                    )}
+                    stat=""
                   />
                 </>
               ) : (

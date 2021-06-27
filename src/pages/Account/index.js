@@ -79,13 +79,22 @@ export default function Account({
       active:
         cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet).length === 0
           ? 0
-          : cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet)[0].voter
-              .length > 0
-          ? cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet)[0].voter
-              .length - ownInfo.active
+          : cardOwnBettings
+              .filter(({ isAnswerSet }) => !isAnswerSet)[0]
+              .token.reduce(
+                (acc, curValue) => Number(acc) + Number(curValue),
+                0
+              ) > 0
+          ? cardOwnBettings
+              .filter(({ isAnswerSet }) => !isAnswerSet)[0]
+              .token.reduce(
+                (acc, curValue) => Number(acc) + Number(curValue),
+                0
+              ) - ownInfo.active
           : ownInfo.active,
     });
   }, [cardOwnBettings]);
+
   return (
     <div className={styles.root}>
       <div className={styles.left}>
@@ -130,7 +139,7 @@ export default function Account({
                 precision={0}
                 valueStyle={{ color: "#3f8600" }}
                 prefix={<ArrowUpOutlined />}
-                suffix="voters"
+                suffix="$haha"
               />
             </div>
             <Divider type="vertical" />
@@ -139,18 +148,14 @@ export default function Account({
             <div className={styles.downDate}>
               <div className={styles.downDay}>
                 {new Date(
-                  cardOwnBettings.filter(
-                    ({ lastBetTime }) => lastBetTime > new Date().getTime()
-                  )[0].distributeTime
+                  cardOwnBettings[cardOwnBettings.length - 1].distributeTime
                 ).getDate()}
               </div>
               <div className={styles.downMonth}>
                 {
                   monthNames[
                     new Date(
-                      cardOwnBettings.filter(
-                        ({ lastBetTime }) => lastBetTime > new Date().getTime()
-                      )[0].distributeTime
+                      cardOwnBettings[cardOwnBettings.length - 1].distributeTime
                     ).getMonth()
                   ]
                 }
@@ -167,7 +172,11 @@ export default function Account({
       <div className={styles.right}>
         <img src={cat} alt="cat" className={styles.image} />
         <div className={styles.icon}>
-          <img src={memberships[ownInfo.member].src} alt="member" />
+          <img
+            src={memberships[ownInfo.member].src}
+            style={{ height: 50 }}
+            alt="member"
+          />
           <div style={{ padding: 4 }}>
             {memberships[ownInfo.member].tooltip}
           </div>

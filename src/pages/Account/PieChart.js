@@ -32,7 +32,6 @@ export default function PieChart({ cardOwnBettings, menuText }) {
     setData(mapping.filter(({ value }) => value > 0));
   }, [cardOwnBettings, menuText]);
 
-  console.log(data);
   const lessThanSomeTimeAgo = (date, num) =>
     moment(date).isAfter(moment().subtract(num, "hours"));
   const MoreThanSomeTimeAfter = (date, num) =>

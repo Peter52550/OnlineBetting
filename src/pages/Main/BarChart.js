@@ -39,26 +39,20 @@ export default function BarChart({ cardAllBettings }) {
       value: 0,
     }));
     let mapping = [];
-    console.log(labels);
     labels.forEach(({ label, value }) => {
       let bets = cardAllBettings.filter(({ distributeTime }) =>
         MoreThanSomeTimeAgo(new Date(distributeTime), value)
       );
-      console.log(bets);
       bets.forEach((bet) => {
-        console.log(bet);
         categoryMapping.find((map) => map.type === bet.category).value +=
           Number(
-            bet.ownTokens.reduce(
+            bet.token.reduce(
               (acc, curValue) => Number(acc) + Number(curValue),
               0
             )
           );
         areaMapping.find((map) => map.type === bet.area).value += Number(
-          bet.ownTokens.reduce(
-            (acc, curValue) => Number(acc) + Number(curValue),
-            0
-          )
+          bet.token.reduce((acc, curValue) => Number(acc) + Number(curValue), 0)
         );
       });
       let maxCategory = Math.max.apply(
@@ -69,7 +63,6 @@ export default function BarChart({ cardAllBettings }) {
         Math,
         areaMapping.map(({ value }) => value)
       );
-      console.log(maxCategory, maxArea);
       mapping.push({
         label: label,
         type: categoryMapping.find(({ value }) => value === maxCategory).type,
@@ -80,9 +73,12 @@ export default function BarChart({ cardAllBettings }) {
         type: areaMapping.find(({ value }) => value === maxArea).type,
         value: maxArea,
       });
-      console.log(mapping);
+      categoryMapping = categoryMapping.map(({ type }) => ({
+        type: type,
+        value: 0,
+      }));
+      areaMapping = areaMapping.map(({ type }) => ({ type: type, value: 0 }));
     });
-    console.log(mapping);
     setData(mapping);
   }, [cardAllBettings]);
 
