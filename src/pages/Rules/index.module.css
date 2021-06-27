@@ -8,6 +8,7 @@
   top: 40%;
   left: 20%;
   transform: translateY(-50%);
+  margin-top: 50px;
 }
 .buttonWrapper {
   margin: 0 auto;

@@ -109,12 +109,14 @@ export default function MainPage({
     setCurrentBets([]);
   };
   useEffect(async () => {
-    let hotbets = await InfoAPI.getHotBets(contract, accounts);
-    let hotbetIds = hotbets[0];
+    // let hotbets = await InfoAPI.getHotBets(contract, accounts);
+    // let hotbetIds = hotbets[0];
     let hotFinal = [];
+    // console.log(hotbets);
     let allBetIds = cardAllBettings.map(({ bet_id }) => String(bet_id));
     cardAllBettings.forEach((bet, index) => {
-      if (allBetIds.includes(hotbetIds[index]) && !bet.isAnswerSet) {
+      // if (allBetIds.includes(hotbetIds[index]) && !bet.isAnswerSet) {
+      if (bet.voter.length > 0 && !bet.isAnswerSet) {
         hotFinal.push(bet);
       }
     });

@@ -51,6 +51,7 @@ export default function Router() {
   const [finish, setFinish] = useState(false);
   const [ownInfo, setOwnInfo] = useState({});
   const [hotBets, setHotBets] = useState([]);
+  const [latest, setLatest] = useState(false);
 
   const createBet = async ({
     formTitleName,
@@ -133,6 +134,7 @@ export default function Router() {
       ...cardAllBettings,
     ]);
     setLoading(false);
+    setLatest(true);
     message.info("開盤成功!");
   };
 
@@ -181,10 +183,11 @@ export default function Router() {
         setCardAllBettings([]);
         setCardOwnBettings([]);
       } else {
-        let hotbets = await InfoAPI.getHotBets(instance, accounts);
-        let hotbetIds = hotbets[0];
-        let hotAllBets = hotbets[1];
-        let hots = hotAllBets;
+        // let hotbets = await InfoAPI.getHotBets(instance, accounts);
+        // console.log(hotbets);
+        // let hotbetIds = hotbets[0];
+        // let hotAllBets = hotbets[1];
+        // let hots = hotAllBets;
         let hotFinal = [];
         let ownBets = [];
         let allBets = [];
@@ -240,11 +243,17 @@ export default function Router() {
           } else {
             allBets.push({ ...bet, status: Number(status) });
           }
-          if (hotbetIds.includes(validIds[index])) {
+          if (bet.voter.length > 0) {
+            // if (hotbetIds.includes(validIds[index])) {
             hotFinal.push({ ...bet, status: Number(status) });
           }
         });
-        setHotBets(hotFinal);
+        if (hotFinal.length > 5) {
+          setHotBets(hotFinal.slice(0, 5));
+        } else {
+          setHotBets(hotFinal);
+        }
+
         let newPath = paths;
         Object.entries(newPath).map(([type, cards]) => {
           cards.map((ele) => {
@@ -267,6 +276,7 @@ export default function Router() {
       console.error(error);
     }
   }, []);
+  console.log(cardAllBettings);
   return (
     <>
       {loading ? (
@@ -316,6 +326,8 @@ export default function Router() {
                 web3={web3}
                 ownInfo={ownInfo}
                 setOwnInfo={setOwnInfo}
+                latest={latest}
+                setLatest={setLatest}
               />
             </Route>
             <Route path="/home/rules" exact>
