@@ -80,6 +80,16 @@ export default function MainPage({
             : bet.title.includes(title) && !bet.isAnswerSet
         )
       );
+    } else {
+      setCurrentBets(
+        cardAllBettings.filter((bet) =>
+          inRange(bet.lowerbound, lower[0], lower[1]) &&
+          inRange(bet.upperbound, upper[0], upper[1]) &&
+          title === ""
+            ? true
+            : bet.title.includes(title) && !bet.isAnswerSet
+        )
+      );
     }
     setMode("search");
   };
