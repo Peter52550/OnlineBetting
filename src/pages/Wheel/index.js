@@ -79,11 +79,11 @@ import "./wheel.css";
 const segments = [
   "Sorry",
   "ByeBye",
-  "haha_10",
-  "haha_20",
-  "haha_50",
-  "haha_100",
-  "haha_200",
+  "10個haha",
+  "20個haha",
+  "50個haha",
+  "100個haha",
+  "200個haha",
   "Jackpot",
 ];
 const segColors = [

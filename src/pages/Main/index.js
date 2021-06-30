@@ -80,6 +80,16 @@ export default function MainPage({
             : bet.title.includes(title) && !bet.isAnswerSet
         )
       );
+    } else {
+      setCurrentBets(
+        cardAllBettings.filter((bet) =>
+          inRange(bet.lowerbound, lower[0], lower[1]) &&
+          inRange(bet.upperbound, upper[0], upper[1]) &&
+          title === ""
+            ? true
+            : bet.title.includes(title) && !bet.isAnswerSet
+        )
+      );
     }
     setMode("search");
   };
@@ -109,12 +119,14 @@ export default function MainPage({
     setCurrentBets([]);
   };
   useEffect(async () => {
-    let hotbets = await InfoAPI.getHotBets(contract, accounts);
-    let hotbetIds = hotbets[0];
+    // let hotbets = await InfoAPI.getHotBets(contract, accounts);
+    // let hotbetIds = hotbets[0];
     let hotFinal = [];
+    // console.log(hotbets);
     let allBetIds = cardAllBettings.map(({ bet_id }) => String(bet_id));
     cardAllBettings.forEach((bet, index) => {
-      if (allBetIds.includes(hotbetIds[index]) && !bet.isAnswerSet) {
+      // if (allBetIds.includes(hotbetIds[index]) && !bet.isAnswerSet) {
+      if (!bet.isAnswerSet) {
         hotFinal.push(bet);
       }
     });

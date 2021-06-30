@@ -142,10 +142,12 @@ contract OnlineBetting {
             address payable receiver = msg.sender;
             receiver.transfer(creatorReward * PERCENTAGE_FEE);
             emit MoneyGiven(receiver, creatorReward);
-            for(uint i = 0; i < numVoters; i++) {
-                receiver = payable(bets[_id].voter[i]);
-                receiver.transfer(otherReward * PERCENTAGE_FEE * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
-                emit MoneyGiven(receiver, otherReward * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
+            if(bets[_id].currentChoices[answer] != 0) {
+                for(uint i = 0; i < numVoters; i++) {
+                    receiver = payable(bets[_id].voter[i]);
+                    receiver.transfer(otherReward * PERCENTAGE_FEE * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
+                    emit MoneyGiven(receiver, otherReward * voterChoice[_id][receiver][answer] / bets[_id].currentChoices[answer]);
+                }
             }
         }
         else {

@@ -60,12 +60,15 @@ export const InfoAPI = {
     let values = await contract.methods.getReward().call({
       from: accounts[0],
     });
+
     return values;
   },
   getHotBets: async (contract, accounts) => {
+    console.log("hi");
     let values = await contract.methods.getHotBets().call({
       from: accounts[0],
     });
+    console.log(values);
     return values;
   },
   getLastBet: async (contract, accounts) => {

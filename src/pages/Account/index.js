@@ -26,12 +26,15 @@ export default function Account({
   setOwnInfo,
   contract,
   accounts,
+  latest,
+  setLatest,
 }) {
   const [menuText, setMenuText] = useState("24小時以內");
   const [leftData, setLeftData] = useState(
     cardOwnBettings
       .map(({ ownTokens }) => ownTokens)
       .flat()
+      .filter((value) => !Number.isNaN(value))
       .reduce((acc, curValue) => Number(acc) + Number(curValue), 0)
   );
   const member =
@@ -79,12 +82,21 @@ export default function Account({
       active:
         cardOwnBettings.filter(({ isAnswerSet }) => !isAnswerSet).length === 0
           ? 0
+          : latest
+          ? cardOwnBettings
+              .filter(({ isAnswerSet }) => !isAnswerSet)[0]
+              .token.reduce(
+                (acc, curValue) => Number(acc) + Number(curValue),
+                0
+              )
           : cardOwnBettings
               .filter(({ isAnswerSet }) => !isAnswerSet)[0]
               .token.reduce(
                 (acc, curValue) => Number(acc) + Number(curValue),
                 0
-              ) > 0
+              ) -
+              ownInfo.active >
+            0
           ? cardOwnBettings
               .filter(({ isAnswerSet }) => !isAnswerSet)[0]
               .token.reduce(
@@ -93,8 +105,8 @@ export default function Account({
               ) - ownInfo.active
           : ownInfo.active,
     });
+    setLatest(false);
   }, [cardOwnBettings]);
-
   return (
     <div className={styles.root}>
       <div className={styles.left}>
@@ -115,7 +127,9 @@ export default function Account({
                 setLeftData={setLeftData}
               />
             ) : (
-              <Empty description="尚無資料" />
+              <div style={{ marginTop: 120 }}>
+                <Empty description="尚無資料" />
+              </div>
             )}
           </div>
 
@@ -126,7 +140,9 @@ export default function Account({
             {leftData > 0 ? (
               <ColumnChart cardOwnBettings={cardOwnBettings} />
             ) : (
-              <Empty description="尚無資料" />
+              <div style={{ marginTop: 120 }}>
+                <Empty description="尚無資料" />
+              </div>
             )}
           </div>
         </div>
@@ -163,7 +179,10 @@ export default function Account({
             </div>
           </div>
         ) : (
-          <div className={styles.down}>
+          <div
+            className={styles.down}
+            style={{ display: "flex", justifyContent: "center" }}
+          >
             {" "}
             <Empty description="尚無資料" />
           </div>
@@ -207,7 +226,10 @@ export default function Account({
             </div>
           </div>
         ) : (
-          <div className={styles.rightUp}>
+          <div
+            className={styles.rightUp}
+            style={{ display: "flex", justifyContent: "center" }}
+          >
             <Empty description="尚無資料" />
           </div>
         )}
@@ -244,7 +266,10 @@ export default function Account({
             </div>
           </div>
         ) : (
-          <div className={styles.rightUp}>
+          <div
+            className={styles.rightUp}
+            style={{ display: "flex", justifyContent: "center" }}
+          >
             <Empty description="尚無資料" />
           </div>
         )}
