@@ -6,7 +6,7 @@ export default function Rules() {
     <div className={styles.root}>
       <Card size="small" bordered={false} className={styles.cardWrapper}>
         <h2>会場のルール</h2>
-        <p>1. 成為會員才可下注、開賭盤和抽獎</p>
+        <p>1. 成為會員才可下注、開賭盤、留言和抽獎</p>
         <p>2. 本賭場貨幣最小單位為哈哈幣，為 0.001 ether</p>
         <p>3. 每個賭注會有最小賭注金額，是下注的下限</p>
         <p>
@@ -28,8 +28,9 @@ export default function Rules() {
             達到黃金和鑽石所需的賭注為分別為10000/30000個哈哈幣
           </div>
         </p>
+        <p>8. 留言不限時，答案公佈完也可留言和查看他人評價</p>
         <p>
-          8.
+          9.
           每個賭局下方可以留言及星星評價，皆為匿名，請各位尊重友善包容，也歡迎各位支持我們的賭場，Airwaves
           <div style={{ marginLeft: 20 }}>深呼吸，放手去做</div>
         </p>
