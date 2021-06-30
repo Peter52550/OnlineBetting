@@ -7,6 +7,7 @@ import { categories } from "../../config";
 
 export default function PieChart({ cardOwnBettings, menuText }) {
   const [data, setData] = useState([]);
+
   useEffect(() => {
     let datas;
     let mapping = categories.map((category) => ({ type: category, value: 0 }));

@@ -98,7 +98,11 @@ export default function CreateBetPage({
   const removeClick = (i) => {
     setFormBetOptions(formBetOptions.filter((option, index) => index !== i));
   };
-
+  const hasDuplicates = (arr) => {
+    return arr.some(function (item) {
+      return arr.indexOf(item) !== arr.lastIndexOf(item);
+    });
+  };
   const handleConfirm = () => {
     if (
       formTitleName &&
@@ -115,6 +119,8 @@ export default function CreateBetPage({
         message.info("再檢查一下上限喔");
       } else if (formPublishTime < formLastBetTime) {
         message.info("公佈時間要比最後下賭時間晚喔");
+      } else if (hasDuplicates(formBetOptions)) {
+        message.info("選項不能一樣喔");
       } else {
         setAllSet(true);
         Modal.confirm({

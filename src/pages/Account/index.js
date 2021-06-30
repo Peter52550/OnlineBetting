@@ -34,6 +34,7 @@ export default function Account({
     cardOwnBettings
       .map(({ ownTokens }) => ownTokens)
       .flat()
+      .filter((value) => !Number.isNaN(value))
       .reduce((acc, curValue) => Number(acc) + Number(curValue), 0)
   );
   const member =
@@ -106,7 +107,6 @@ export default function Account({
     });
     setLatest(false);
   }, [cardOwnBettings]);
-
   return (
     <div className={styles.root}>
       <div className={styles.left}>

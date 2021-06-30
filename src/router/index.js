@@ -148,13 +148,11 @@ export default function Router() {
     return 88;
   };
   const handleBettingChange = (cardList, status) => {
-    if (status === "自己") {
-      setCardOwnBettings(cardList);
-    } else if (status === "全部") {
-      setCardAllBettings(cardList);
-    }
+    setCardOwnBettings(
+      cardList.filter(({ status }) => status === 0 || status === 2)
+    );
+    setCardAllBettings(cardList);
   };
-
   useEffect(async () => {
     try {
       const web3 = await getWeb3();
@@ -276,7 +274,6 @@ export default function Router() {
       console.error(error);
     }
   }, []);
-  console.log(cardAllBettings);
   return (
     <>
       {loading ? (

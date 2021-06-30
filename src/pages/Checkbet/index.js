@@ -89,13 +89,9 @@ export default function CheckBet(props) {
       tokenArray
     );
     setBetInfo(bet);
-    let bettings;
-    if (mode === "自己") {
-      bettings = cardOwnBettings;
-    } else {
-      bettings = cardAllBettings;
-    }
-    bettings = bettings.filter(({ bet_id }) => Number(bet_id) !== Number(id));
+    let bettings = cardAllBettings.filter(
+      ({ bet_id }) => Number(bet_id) !== Number(betInfo.bet_id)
+    );
     bettings.unshift(bet);
     handleBettingChange(bettings, mode);
     setToken(Array(betInfo.options.length).fill(""));
@@ -122,22 +118,12 @@ export default function CheckBet(props) {
     let bettings;
     let bet = betInfo;
     bet.isAnswerSet = true;
-    if (mode === "自己") {
-      bettings = cardOwnBettings.filter(
-        ({ bet_id }) => bet_id !== betInfo.bet_id
-      );
-      handleBettingChange([bet, ...bettings], "自己");
-    } else if (mode === "全部") {
-      bettings = cardOwnBettings.filter(
-        ({ bet_id }) => bet_id !== betInfo.bet_id
-      );
-      handleBettingChange([bet, ...bettings], "全部");
-    }
+    bettings = cardAllBettings.filter(
+      ({ bet_id }) => bet_id !== betInfo.bet_id
+    );
+    handleBettingChange([bet, ...bettings], "全部");
     AntMessage.info("設定成功!");
   };
-  // const handleDistributeMoney = async () => {
-
-  // };
   const confirm = (func, mode) => {
     let text;
     if (mode === 0) text = "下注嗎??";
@@ -165,24 +151,13 @@ export default function CheckBet(props) {
     bet.comments.push(message);
     setBetInfo(bet);
     let bettings;
-    if (mode === "自己") {
-      bettings = [
-        bet,
-        ...cardOwnBettings.filter(
-          ({ bet_id }) => Number(bet_id) !== Number(id)
-        ),
-      ];
-
-      handleBettingChange(bettings);
-    } else if (mode === "全部") {
-      bettings = [
-        bet,
-        ...cardAllBettings.filter(
-          ({ bet_id }) => Number(bet_id) !== Number(id)
-        ),
-      ];
-      handleBettingChange(bettings);
-    }
+    bettings = [
+      bet,
+      ...cardAllBettings.filter(
+        ({ bet_id }) => Number(bet_id) !== Number(betInfo.bet_id)
+      ),
+    ];
+    handleBettingChange(bettings);
     setMessage("");
     AntMessage.info("發佈成功!");
   };

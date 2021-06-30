@@ -126,7 +126,7 @@ export default function MainPage({
     let allBetIds = cardAllBettings.map(({ bet_id }) => String(bet_id));
     cardAllBettings.forEach((bet, index) => {
       // if (allBetIds.includes(hotbetIds[index]) && !bet.isAnswerSet) {
-      if (bet.voter.length > 0 && !bet.isAnswerSet) {
+      if (!bet.isAnswerSet) {
         hotFinal.push(bet);
       }
     });
