@@ -26,9 +26,19 @@ The currency unit in this system is "haha" and the currency exchange rate is 100
 
 ### Getting Started
 
+#### Ganache
+Make sure you have your Ganache open, add truffle.js and change the server port to 8545
+
+```
+cd ethereum
+truffle compile
+truffle migrate
+```
+remove the old build directory and the contracts directory under src and add the new build directory and the contracts directory from ethereum to src
+
 #### Install dependencies
 
-run the following command
+move to the root of the project and run the following command
 
 ```
 npm install
@@ -43,23 +53,14 @@ yarn add react-custom-roulette
 ```
 The order above may depends on your environment, try switching the order and remember to install other packages required
 
-#### Ganache
-Make sure you have your Ganache open, add truffle.js and change the server port to 8545
-
-```
-cd ethereum
-truffle compile
-truffle migrate
-```
-remove the old build directory and the contracts directory and add the new build directory and the contracts directory under src
-
-
 #### Start the project
 
 ```
-cd to root
 npm start
 ```
+
+#### remember to copy the private key on Ganache and paste it in metamask
+
 
 ### Usage
 
