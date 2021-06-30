@@ -43,11 +43,10 @@ move to the root of the project and run the following command
 ```
 npm install
 ```
-If npm install does not work and show some errors, this is probably due to the fact that the spinning wheel in our project is installed by yarn, try the following method:
+If npm install does not work and show some errors, this is probably due to the fact that the spinning wheel in our project is installed by yarn, first remove all node_modules and try the following methods:
 
 ```
 yarn remove react-custom-roulette
-rm -r node_modules
 npm install
 yarn add react-custom-roulette
 ```
