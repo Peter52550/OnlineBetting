@@ -34,7 +34,7 @@ cd ethereum
 truffle compile
 truffle migrate
 ```
-remove the old build directory and the contracts directory under src and add the new build directory and the contracts directory from ethereum to src
+remove the old build directory and the contracts directory under src and copy the new build directory and the contracts directory from ethereum to src
 if you are in root of the project
 ```
 rm -r ./src/build
