@@ -39,8 +39,8 @@ if you are in root of the project
 ```
 rm -r ./src/build
 rm -r ./src/contracts
-mv ./ethereum/build ./src
-mv ./ethereum/contracts ./src
+cp -r ./ethereum/build ./src
+cp -r ./ethereum/contracts ./src
 ```
 #### Install dependencies
 
