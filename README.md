@@ -33,17 +33,6 @@ run the following command
 ```
 npm install
 ```
-
-#### Some dependencies you need to install
-
-```
-npm install antd --save
-npm install @ant-design/icons --save
-npm install @ant-design/charts --save
-npm install clsx --save
-npm install react-router-dom --save
-npm install @material-ui/core --save
-```
 If npm install does not work and show some errors, this is probably due to the fact that the spinning wheel in our project is installed by yarn, try the following method:
 
 ```
@@ -62,7 +51,7 @@ cd ethereum
 truffle compile
 truffle migrate
 ```
-move the build directory and the contract directory under src
+remove the old build directory and the contracts directory and add the new build directory and the contracts directory under src
 
 
 #### Start the project
