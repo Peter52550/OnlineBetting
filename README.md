@@ -33,6 +33,7 @@ Make sure you have your Ganache open, add truffle.js and change the server port 
 cd ethereum
 truffle compile
 truffle migrate
+
 ```
 remove the old build directory and the contracts directory under src and copy the new build directory and the contracts directory from ethereum to src
 
